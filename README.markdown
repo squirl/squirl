@@ -3,6 +3,9 @@
 
 Student Quest to Unite In Real Life
 
+More documentation is available in 
+[this repoisitory's wiki](https://github.com/squirl/squirl/wiki).
+
 ## Setting Up (for Developers)
 
 This is a website built in Python, using the Django web framework.
