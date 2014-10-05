@@ -16,7 +16,7 @@ prompt (either Git Bash on Windows or the standard terminal on OS X / Linux),
 run the following commands:
 
     $ cd <project directory>
-    $ git clone git@github.com:squirl/squirl.git
+    $ git clone git@github.com:squirlapp/squirl.git
 
 This creates a new subdirectory `squirl` below the given directory (`<project
 directory>`), containing the current website sources. 
