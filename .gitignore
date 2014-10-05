@@ -52,3 +52,10 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# Vim files
+*.swo
+*.swp
+
+# Machine-specific virtualenv
+venv/
