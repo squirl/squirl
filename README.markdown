@@ -38,10 +38,31 @@ this repository. Then try running
     $ python --version
 
 The output should be something along the lines of '`Python 2.7.8`'. If you get 
-an error about not being able to find python, you may need to add python to
-your terminal's program search path. If you're developing on Windows, you can 
-follow steps 3.3.1 and 3.3.2 on 
-[this page](https://docs.python.org/2/using/windows.html#configuring-python).
+an error about not being able to find python, follow the directions in the next 
+section of this document; otherwise, skip the next section.
+
+#### 2.1 Configuring your PATH Variable
+
+`PATH` is a system environment variable that tells your command prompt where
+to look for programs you run. On Windows, you can run `echo %PATH%` in a command
+prompt to see your current `PATH`; on OS X and Linux, you can run `echo $PATH`.
+The output is a list of directories that your terminal looks in when you run
+a program.
+
+When you installed Python to your machine, the installer put a python program
+on your machine (`C:\Python27\Python.exe` on Windows, for example). You can
+always run Python by typing out the full path (e.g. 
+`C:\Python27\Python --version`). For convenience, we're going to add the python
+install directory to your `PATH`, so that you can simply run `python --version`.
+
+On Windows, you can modify your `PATH` variable by
+[following this guide](http://www.howtogeek.com/118594/how-to-edit-your-system-path-for-easy-command-line-access).
+You'll want to add the following two directories to `PATH`:
+
+    C:\Python27
+    C:\Python27\Scripts
+
+On Linux or OS X, you can [follow this guide](http://superuser.com/questions/488173/how-can-i-edit-the-path-on-linux)
 
 ### 3. Install `pip`
 
@@ -49,7 +70,11 @@ Pip is a package manager responsible for downloading and installing open-source
 Python modules that squirl relies on. If you've set up Python on your machine,
 installing pip should be relatively straightforward:
 
-* If you're on Windows, run the following in a command prompt:
+First, download and run [ez_setup.py](https://bootstrap.pypa.io/ez_setup.py):
+
+    $ python ez_setup.py
+
+* Then, if you're on Windows, run the following in a command prompt:
 
         $ easy_install pip
 
