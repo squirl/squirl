@@ -46,3 +46,5 @@ class Event(models.Model):
     #needs a group field
     #needs list of users
     
+    #Test For commit
+    
