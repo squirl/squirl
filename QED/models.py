@@ -1,6 +1,6 @@
 from django.db import models
+from django.contrib.auth.models import User
 
-# Create your models here.
 
 class Location (models.Model):
     name = models.CharField(max_length = 100)
@@ -8,34 +8,35 @@ class Location (models.Model):
     def __str__(self):
         return self.name
 
+class Interest(models.Model):
+    name = models.CharField(max_length = 100)
+    def __str__(self):
+        return self.name
+    
+class Squirl(models.Model):
+    squirlUser = models.OneToOneField(User)
+    interests = models.ManyToManyField(Interest)
+
 class Member(models.Model):
     mem = models.ForeignKey(Squirl)
-    GROUP_ROLE = (
-    (0, 'Owner'),
-    (1, 'Member'),
-    (2, 'Editor'),
+    
+    #decide if we want to have any data about how often they attend meetings
+    GROUP_ROLE_CHOICES = (
+        (0,'Owner'),
+        (1, 'Member'),
+        (2, 'Editor'),
     )
-    #group role here
+    role = models.CharField(max_length=6, choices=GROUP_ROLE_CHOICES, default = 'Member')
 
     
 class Group(models.Model):
     name = models.CharField(max_length = 100, primary_key = True)
     interests = models.ManyToManyField(Interest)
     description = models.CharField(max_length = 1000)
-    
+    parentGroup = models.ManyToManyField('self',null=True, blank = True) #So a group can have other groups like its users. (Subgroups)
     def __str__(self):
         return self.name
     
-class Interest(models.Model):
-    name = models.CharField(max_length = 100)
-    def __str__(self):
-        return self.name
-
-class Squirl(models.Model):
-    squirlUser = models.OneToOneField(User)
-    interests = models.ManyToManyField(Interest)
-    
-
     
 class Event(models.Model):
     location = models.OneToOneField(Location)
@@ -46,5 +47,5 @@ class Event(models.Model):
     #needs a group field
     #needs list of users
     
-    #Test For commit
+
     
