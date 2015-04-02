@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+<div class="eventBoard">
+    {% if user_event_list %}
+    <ul>
+        { % for event in user_event_list % }
+        <li>
+            <h3><a>{{event.name}}</a></h3>
+            <p>{{event.startTime}}</p>
+
+
+        </li>
+
+    </ul>
+    { % else % }
+    <p>You have no upcoming events at this time.</p>
+    { % endif % }
+</div>
