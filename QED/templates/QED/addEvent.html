@@ -1,0 +1,6 @@
+{% extends "QED/base.html" %} {% block title %}SQUIRL: Add Event{% endblock %}{% block content %}
+<h1>Create A New Event!</h1>
+<form method="post">
+    {% csrf_token %} {{form.as_p}}
+    <input type="submit" value="Create Event!">
+</form>{% endblock %}

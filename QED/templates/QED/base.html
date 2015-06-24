@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    {%block head %} {%endblock%}
+
+    <title>{% block title %}Base Page For SQUIRL{% endblock title %}</title>{%block links_to_static_files %} {% endblock %}
+</head>
+
+<body>
+    {% block menu %}
+    <div id='topMenuBar'>
+        {% block menu_addon %} {% endblock %}
+        <div>
+            <a href='/logout'>Logout</a><a href="/index">Home</a>
+        </div>
+    </div>{% endblock %} {% block content %}{% endblock %}
+
+</body>
+
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    {% block title %}
+    <title>Base Page For SQUIRL</title>{% endblock title %}
+</head>
+
+<body>
+    {% block menu_bar_top %}
+    <div id='topMenuBar'>
+        <a href='/logout'></a>
+    </div>{% endblock menu_bar_top %} {% block content %}Grapes{% endblock %}
+
+</body>
+
+</html>
