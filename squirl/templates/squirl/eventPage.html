@@ -1,0 +1,30 @@
+{%extends "squirl/base.html"%} {% load staticfiles %}{%block links_to_static_files %}
+<link rel="stylesheet" type="text/css" href="{% static 'QED/eventPageLayout.css' %}" />
+<link rel="stylesheet" type="text/css" href=" {% static 'QED/bootstrap/css/jquery-ui.min.css' %}"
+{% endblock %} {%block content %}
+
+
+<div id="eventMiddle">
+    <div id="eventInfo">
+        <a class="eventLink" href='/QED/event/{{event.id}}'> {{event.name }}</a>
+        <div class='eventDiscription'>{{event.description}}</div>
+        <div class='eventTime'>{{event.start_time}} to {{event.end_time}}</div>
+        <div class="eventLocation">Where: {{event.main_location}}</div>
+        {%comment %}
+        <div class="eventGroup">Part of <a class="groupLink" href="/group.html">{{event.group.name}}</a>
+        </div>{%endcomment%}
+    </div>
+    <div id="attendance">
+        <div>Members:</div>
+        {%for userPlan in attendance %}
+        <div>
+            <p>{{userPlan.squirl_user}} : {{userPlan.status}}</p>
+        </div>{%endfor%}
+    </div>
+</div>
+
+<div id="eventBottom">No news feed yet</div>
+
+
+
+{%endblock %}

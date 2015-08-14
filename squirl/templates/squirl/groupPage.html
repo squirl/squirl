@@ -1,0 +1,80 @@
+{%extends "squirl/base.html"%} {% load staticfiles %}{%block links_to_static_files %}
+<link rel="stylesheet" type="text/css" href="{% static 'QED/groupPageLayout.css' %}" /><script type="text/javascript" src="{% static 'QED/jquery-2.1.4.js' %}">  </script>
+{% endblock %}
+{% block menu_addon %} <div><a href="/QED/joinGroup/{{group.pk | urlencode}}">Request to join group</a>
+        </div> {% endblock %}{%block content %}
+
+<div id="middle">
+    <div id="events">
+        <div class="title">Events</div>
+        <div id="eventTable">
+            <table>
+                <tbody>
+                    {% for event in groupEvents %}
+                    <tr>
+                        <td><a class="eventLink" href='/QED/event/{{event.event.id}}'> {{event.event.name }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Location:</td>
+                        <td>{{event.event.main_location}}</td>
+                    </tr>
+                    <tr class="date">
+                        <td>Start:</td>
+                        <td>{{event.event.start_time}}</td>
+                    </tr>
+                    <tr class="date">
+                        <td>End:</td>
+                        <td>{{event.event.end_time}}</td>
+                    </tr>
+                    {%endfor%}
+                </tbody>
+            </table>
+           
+        </div>
+    </div>
+    <div id="right">
+        <div id="info">
+            <div class="title">
+                {{group.name}}
+            </div>
+            <div>Description: {{group.description}}</div>
+            <div>
+                <div class="title">Group info</div>
+                <table>
+                    <tr>
+                        <td>Number of Members:</td>
+                        <td>{{members |length}}</td>
+                    </tr>
+                </table>
+            </div>
+            <form method="post" id="subGroupForm">
+                <div>Send Sub-Group Request</div>
+                {% csrf_token %}
+                {{subGroupForm.group1}}
+                {{subGroupForm.group2}} will be a
+                {{subGroupForm.role}} of this group
+                <input type="submit" value="Submit" id="subGroupSubmit">
+            </form>
+        </div>
+        <div id="members">
+            <div class="title">
+                Members
+            </div>
+            <table>{%for member in members %}
+                <tr>
+                    <td>{{member.user}}</td>
+                    <td>{{member.role}}</td>
+                </tr>{%endfor%}
+            </table>
+            
+        </div>
+         
+    </div>
+
+</div>
+<div id="bottom">
+    <div class="title">No news feed yet</div>
+</div>
+<script type="text/javascript" src="{% static 'QED/groupPageScript.js' %}"></script> </script> 
+{%endblock %}

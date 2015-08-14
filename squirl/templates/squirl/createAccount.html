@@ -1,0 +1,9 @@
+{%extends "squirl/base.html"%}{%block default_menu %}
+<div><a href="{% url 'squirl_login' %}">Sign in</a>
+</div>{%endblock%} {%block content%}
+<h1>Create An Account!</h1>
+<form method="post">
+    {% csrf_token %} {{form.as_p}}
+    <input type="submit" value="Create Account!">
+</form>
+<div class="error">{{error}}</div>{%endblock%}

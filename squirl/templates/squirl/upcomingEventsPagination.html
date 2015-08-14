@@ -1,0 +1,33 @@
+ <h3>Upcoming Events</h3>
+{% if user_events.has_other_pages %}
+<ul class="pagination">{% if user_events.has_previous %}
+    <li><a href="?page={{user_events.previous_page_number  }}">&laquo;</a>
+    </li>
+    {%else %}
+    <li class="disabled"><span>&laquo;</span>
+    </li>{%endif%} {% for page_number in object_list.paginator.page_range %} {% if page_number == user_events.number %}
+    <li class="active"><span>{{page_number}}<span class="sronly">(current)</span></span>
+    </li>
+    {%else%}
+    <li><a href="?page={{page_number}}">{{page_number}}</a>
+    </li>
+    {%endif%} {%endfor%} {% if user_events.has_next %}
+    <li><a href="?page={{user_events.next_page_number}}">&raquo;</a>
+    </li>
+    {%else %}
+    <li class="disabled"><span>&raquo;</span>
+    </li>{%endif%}
+</ul>
+{%endif%} {% if user_events.object_list %} {% for event in user_events.object_list %}
+<div class="event">
+    <a class="eventLink" href='/event.html'> {{event.name }}</a>
+    <div class='eventDiscription'>{{event.description}}</div>
+    <div class='eventTime'>{{event.start_time}} to {{event.end_time}}</div>
+    <div class="eventLocation">Where: {{event.main_location}}</div>
+    <div class="eventGroup">Part of <a class="groupLink" href="/group.html">{{event.group.name}}</a>
+    </div>
+</div>
+{% endfor %} {% else %}
+<p>You have no upcoming events at this time.</p>
+{% endif %}
+

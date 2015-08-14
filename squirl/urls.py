@@ -1,17 +1,18 @@
-from django.conf.urls import patterns, include, url
-from django.contrib import admin
-from dajaxice.core import dajaxice_autodiscover, dajaxice_config
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-dajaxice_autodiscover()
+from django.conf.urls import url
 
-urlpatterns = patterns('',
-    # Examples:
-                       
-    # url(r'^$', 'squirl.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
-
-    url(r'^admin/', include(admin.site.urls)),
-    url(r'^QED/', include('QED.urls')),
-    url(dajaxice_config.dajaxice_url, include('dajaxice.urls')),
-)
-urlpatterns += staticfiles_urlpatterns()
+from . import views
+from . import ajaxViews
+urlpatterns = [
+    url(r'^$', views.index, name = 'index'),
+    url(r'^login/$', views.squirl_login, name = 'squirl_login'),
+    url(r'^addEvent/$', views.add_event, name = 'addEvent'),
+    url(r'^signOut/$', views.squirl_logout, name='squirl_logout'),
+    url(r'^createGroup/$', views.create_group, name='createGroup'),
+    url(r'^event/(?P<event_id>[0-9]+)/$',views.event_page, name='event_page'),
+    url(r'^group/(?P<group_id>[-\w ]+)/$',views.group_page, name='group_page'),
+    url(r'^createAccount/$', views.create_account, name='create_account'),
+    url(r'^search/$', views.search_page, name='search_page'),
+    url(r'^profile/(?P<user_id>[0-9]+)/$', views.profile_page, name='profile_page'),
+    url(r'^joinGroup/(?P<group_id>[\w ]+)/$', views.join_group_request, name='join_group_request'),
+    url(r'^subGroupRequest/$', ajaxViews.handle_sub_group_request, name='handle_sub_group_request'),
+]

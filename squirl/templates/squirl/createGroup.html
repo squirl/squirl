@@ -1,0 +1,8 @@
+{%extends "squirl/base.html"%}{%load static %} {%block content%}
+<h1>Create A New Group!</h1>
+<form onsubmit='return validateFields()' , method="post">
+    {% csrf_token %}
+    <div id="errors"></div>{{form.as_p}}
+    <input type="submit" value="Create Event!">
+</form>
+<script type="text/javascript" src="{% static 'squirl/createGroupValidation.js' %}"></script>{%endblock%}

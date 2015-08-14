@@ -1,0 +1,105 @@
+{% extends "squirl/base.html" %}{%load utility_tags%}{%block head %}{%endblock%} {% block title %}SQUIRL {% endblock title%} {% load staticfiles %} {% load url from future %}{% block menu_addon %}
+<div><a href="/squirl/addEvent/">Add Event</a>
+</div>
+<div> <a href="/squirl/createGroup/">Create Group</a>
+</div>
+<div><a href="/squirl/search">Search</a>
+</div>
+
+
+
+{% endblock %} {%block links_to_static_files %}
+<script type="text/javascript" src="{% static 'squirl/jquery-2.1.4.js' %}">
+</script>
+<script type="text/javascript" src="{% static 'squirl/indexScript.js' %}"></script>
+
+<link rel="stylesheet" type="text/css" href="{% static 'squirl/indexLayoutTemplate.css' %}" />{% endblock %}{% block content %}
+<div id="sectionMiddle">{%block middle %}
+    <div id="calendar">{{calendar}}</div>{% endblock%} {%block right_side_bar %}
+    <div id="rightSideBar">{% block right_side_bar_content %}Notifications
+        <div>
+            <h4>Event Notifications</h4>
+            <form method="post">
+                {% csrf_token %} {{formset.management_form}} {% for orm in formset %}
+                <p> <a href='#' onclick="getEvent({{orm.eventId.value}})"> {{orm.eventName.value}}</a> {{orm.response}}{{orm.eventName}}{{orm.eventId}} {{orm.noticeId}}</p>
+                {%endfor%}
+                <h4>Friend Notifications</h4>
+                {{friend_formset.management_form}} {% for f_form in friend_formset %}
+                <p>
+                    {% get_username_from_userid f_form.friend.value %} {{f_form.friend}} {{f_form.relation}}
+                </p>
+                {% endfor %}
+                <h4>Join Group Notifications</h4>
+                {{join_group_formset.management_form}} {% for j_form in join_group_formset %}
+                <p><a href="/squirl/group/{{j_form.group.value | urlencode}}">{{j_form.group.value}}</a> {{j_form.group}}
+                    <a href="/squirl/profile/{{j_form.user.value}}">{%get_username_from_userid j_form.user.value%}</a> {{j_form.user}}{{j_form.role}}</p>
+
+                {%endfor%} {{sub_group_formset.management_form}} {% for sbForm in sub_group_formset%} {% print_sub_group_request_form sbForm.subNoticeModel.value %} {{sbForm}} {%endfor%}
+                <input type="submit" value="Submit">
+            </form>{%comment %} {%for event in notif_events %}
+            <p>{{event.event.name}}</p>{%endfor%} {%endcomment%}
+            <div id="eventTemp"></div>
+        </div>{% endblock %}</div>{% endblock %}</div>
+<div id="bottom">
+    <div id="suggestedGroup">
+        <h3>Suggested Group</h3>
+        {% if suggested_group %}
+        <div>
+            <h3><a href="/squirl/group/{{suggested_group.pk}}">{{suggested_group.name}}</a></h3>
+        </div>
+        <div>
+            <h4>Description:</h4> {{suggested_group.description}}
+        </div>
+        <div>
+            <h4>Interest(s):</h4>{%for inter in suggested_group.interests.all %}
+            <li>{{inter.name}}</li>{%endfor%}
+        </div>
+        {% else %}
+        <h4>No suggested groups.</h4>
+        {%endif %}
+    </div>
+    <div id="upcomingEvents">
+        <div id="topUpcomingEvents">
+            <span class="section">
+        <h3>Upcoming Events</h3></span>
+            <span class="section">
+        {% if user_events.has_other_pages %}
+        <div class="pagination">{% if user_events.has_previous %}
+            <span><a href="?page={{user_events.previous_page_number  }}" class="pageNumber">&laquo;</a>
+            </span>
+            {%else %}
+            <span class="disabled"><span>&laquo;</span>
+            </span>{%endif%} {% for page_number in user_events.paginator.page_range %} {% if page_number == user_events.number %}
+            <span class="active"><span>{{page_number}}<span class="sronly">(current)</span></span>
+            </span>
+            {%else%}
+            <span><a href="?page={{page_number}}" class="pageNumber">{{page_number}}</a>
+        </span>
+            {%endif%} {%endfor%} {% if user_events.has_next %}
+            <span><a href="?page={{user_events.next_page_number}}" class="pageNumber">&raquo;</a>
+        </span>
+            {%else %}
+            <span class="disabled"><span>&raquo;</span>
+            </span>{%endif%}
+        </div>
+        </span>
+        {%endif%}
+    </div>
+    <div id="bottomeUpcomingEvents">{% if user_events.object_list %} {% for event in user_events.object_list %}
+        <div class="event">
+            <a class="eventLink" href="#" onclick="getEvent({{event.event.id}})"> {{event.event.name }}</a>
+            <div class='eventDiscription'>{{event.event.description}}</div>
+            <div class='eventTime'>{{event.event.start_time}} to {{event.event.end_time}}</div>
+            <div class="eventLocation">Where: {{event.event.main_location}}</div>
+            <div class="eventGroup">Part of <a class="groupLink" href="/group.html">{{event.group.name}}</a>
+            </div>
+        </div>
+        {% endfor %} {% else %}
+        <p>You have no upcoming events at this time.</p>
+        {% endif %}
+    </div>
+    </div>
+</div>
+
+
+{% endblock content %}

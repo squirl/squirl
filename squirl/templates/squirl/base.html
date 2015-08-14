@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+ {% load staticfiles %}
+<html>
+
+<head>
+    <link href = "{% static 'squirl/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href = "{% static 'squirl/bootstrap/jquery-ui.min.css' %}" rel="stylesheet">
+    {%block head %} {%endblock%}
+
+    <title>{% block title %}Base Page For SQUIRL{% endblock title %}</title>{%block links_to_static_files %} {% endblock %}
+</head>
+
+<body>
+    {% block menu %}
+    <div id='topMenuBar'>
+        {% block menu_addon %} {% endblock %} {%block default_menu %}
+        <div><a href="/squirl/">Home</a>
+        </div>
+        <div>
+            <a href='/squirl/signOut'>Logout</a>
+        </div>{%endblock%}
+    </div>{% endblock %} {% block content %}{% endblock %}
+    <script src="{%static 'squirl/jquery-2.1.4.js' %}"></script>
+<script src="{%static 'squirl/bootstrap/jquery-ui.min.js' %}"></script>
+    <script src ="{% static 'squirl/bootstrap/js/bootstrap.min.js' %}"></script>
+    {% block endScripts %} {%endblock %}
+</body>
+
+</html>

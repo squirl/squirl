@@ -1,0 +1,36 @@
+{%extends "squirl/base.html"%} {% load staticfiles %} {% load i18n%} {%load utility_tags%}{%block links_to_static_files %}
+<link rel="stylesheet" type="text/css" href="{% static 'squirl/searchPageLayout.css' %}" />{% endblock %} {%block content%}
+<div id="sidebar">
+    <div class="filters">
+        <h6> {%trans "Filter by Interest" %}</h6>
+        <div class="list-group">
+            <a class="list-group-item{% if not facest.selected.interest  %} active {%endif%}" href="{%append_to_query interest=""   %}">{%trans "All"%}</a>
+            {% for cat in facets.categories.interests %}<a class="list-group-item{% if facets.selected.interest == cat %} active {%endif %}" href="{% append_to_query interest=cat.pk  %}">{{cat}}</a> {%endfor%}
+        </div>
+        <h6> {%trans "Filter by Location" %}</h6>
+        <div class="list-group">
+            <a class="list-group-item{% if not facest.selected.location%} active {%endif%}" href="{%append_to_query location=""   %}">{%trans "All"%}</a>
+            {% for cat in facets.categories.locations %}<a class="list-group-item{% if facets.selected.location == cat %} active {%endif %}" href="{% append_to_query location=cat.pk  %}">{{cat}}</a> {%endfor%}
+        </div>
+
+        
+    </div>
+</div>
+<div id="eventList">
+    <h3>Events</h3>{% for event in object_list %}
+    <div class="event">
+        <h3><a id="id_eventLink" href='/squirl/event/{{event.id}}'> {{event.name}}</a></h3>
+    </div>
+
+    {%endfor %}
+</div>
+<div id="groupList">
+    <h3>Groups</h3>{%for group in group_list %}
+    <div class="group"> <h3><a href="/squirl/group/{{group.pk | urlencode}}">{{group.name}}</a></h3></div>
+    
+    {%endfor %}
+</div>
+<div id="userList"><h3>Users</h3> {%for user in user_list %}
+ <div class="person"><h4><a href="/squirl/profile/{{user.squirl_user.id}}">{{user.squirl_user.username}}</a></h4></div>
+    {%endfor %}
+</div>{%endblock%}
