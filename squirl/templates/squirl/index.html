@@ -18,9 +18,12 @@
     <div id="calendar">{{calendar}}</div>{% endblock%} {%block right_side_bar %}
     <div id="rightSideBar">{% block right_side_bar_content %}Notifications
         <div>
-            <h4>Event Notifications</h4>
+            
             <form method="post">
-                {% csrf_token %} {{formset.management_form}} {% for orm in formset %}
+                {% csrf_token %}
+                {% if formset %}
+                <h4>Event Notifications</h4> {%endif%}
+                {{formset.management_form}} {% for orm in formset %}
                 <p> <a href='#' onclick="getEvent({{orm.eventId.value}})"> {{orm.eventName.value}}</a> {{orm.response}}{{orm.eventName}}{{orm.eventId}} {{orm.noticeId}}</p>
                 {%endfor%}
                 <h4>Friend Notifications</h4>

@@ -15,7 +15,7 @@ from django.forms.formsets import formset_factory
 import groupMethods as gm
 from .groupForms import JoinGroupRequestForm, SubGroupNotificationForm
 import friendMethods as fm
-from .eventMethods import display_event, get_user_event_notifications, validate_event_notifications_formset, create_from_event_notification_formset, get_user_upcoming_events
+from .eventMethods import display_event, get_user_event_notifications, validate_event_notifications_formset, create_from_event_notification_formset, get_user_upcoming_events, get_event_notification_by_user_and_event
 #Get javascript going
 import json
 from django.core.serializers.json import DjangoJSONEncoder
@@ -111,29 +111,7 @@ def index(request):
                 valid = valid and fm.validate_friend_formset(friend_notifications, squirl)
                 if not valid:
                     print("friends bad")
-##                for f_notification in friend_notifications:
-##                    if f_notification['relation'].value() != 3:
-##                        #create some sort of connection
-##                        connection = Connection.objects.filter(user__squirl_user = request.user, relation__user__squirl_user__id= f_notification['friend'].value())
-##                        if not connection:
-##                            connection = Connection()
-##                            connection.user = Squirl.objects.get(squirl_user = request.user)
-##                            relation = Relation()
-##                            relation.user = Squirl.objects.get(squirl_user__id = f_notification['friend'].value())
-##                            relation.relation = f_notification['relation'].value()
-##                            relation.save()
-##                            connection.relation=relation
-##                            connection.save()
-##                            f_notice = FriendNotification.objects.get(user__squirl_user__id = f_notification['friend'].value(), notice__user__squirl_user= request.user)
-##                            if f_notice:
-##                                notice = f_notice.notice
-##                                notice.viewed=True
-##                                notice.save()
-##                        f_notice = FriendNotification.objects.get(user__squirl_user__id = f_notification['friend'].value(), notice__user__squirl_user= request.user)
-##                        if f_notice:
-##                            notice = f_notice.notice
-##                            notice.viewed=True
-##                            notice.save()
+
             else:
                return HttpResponse("Form not valid")
             if sub_notif_post_formset.is_valid():
@@ -148,61 +126,7 @@ def index(request):
                 gm.handle_sub_group_notification_post(sub_notif_post_formset, squirl)
             else:
                 print("not valid valid")
-##            notices = request.POST.getlist('noticeId')
-##            responses = request.POST.getlist('response')
-##            e_notifications=[]
-##            e_responses=[]
-##
-##            if len(notices) != len(responses):
-##                return HttpResponse("Error your response length does not match notice length")
-##            else:
-##                squirl = Squirl.objects.get(squirl_user__id=request.user.id)
-##                try:
-##                    for notice in notices:
-##                        e_notice=EventNotification.objects.get(notice__user__squirl_user = request.user, id = notice)
-##                        e_notifications.append(e_notice)
-##                    for response in responses:
-##                        try:
-##                            r = int(response)
-##                            
-##                            if r > 5 or r <0:
-##                                print response
-##                                return HttpResponse("Error response not in range")
-##                            else:
-##                                e_responses.append(r)
-##                                    
-##                        except ValueError:
-##                            return HttpResponse("Value is not a number")
-##                except EventNotification.DoesNotExist:
-##                    return ("Event notice does not exist")
-##                index = 0
-##                for notice in e_notifications:
-##                    r = e_responses[index]
-##                    if r != 0:
-##                        if r ==1:
-##                            notice.notice.viewed=True
-##                            notice.notice.save()
-##                        else:
-##                            notice.notice.viewed=True
-##                            notice.notice.save()
-##                            userPlan = UserEventPlan()
-##                            userPlan.squirl_user=squirl
-##                            userPlan.event=notice.event
-##
-##                            if r ==2:
-##                                userPlan.status=1
-##                            elif r ==3:
-##                                userPlan.status=0
-##                            elif r == 4:
-##                                userPlan.status=2
-##                            elif r ==5:
-##                                userPlan.status=4
-##                            else:
-##                                userPlan.status=3
-##                            userPlan.save()
-##                            
-##
-##                    index+=1   
+
         print("Test before ajax")
         if request.is_ajax():
             print("Ajax")
@@ -211,40 +135,30 @@ def index(request):
         friend_notifications = get_friend_notifications(request.user)
         event_notices = get_user_event_notifications(squirl)
         
-##        notification_events = EventNotification.objects.filter(notice__user__squirl_user = request.user, notice__viewed=0)
-##        formset = []
-##        for event in notification_events:
-##            form = EventNotificationForm(initial={'eventName': event.event.name, 'noticeId': event.id, 'eventId': event.event.id})
-##            form.eventName = event.event.name
-##            form.noticeId=event.notice.id
-##            formset.append(form)
-        #events = UserEventPlan.objects.filter(squirl_user__squirl_user = request.user).order_by('event__start_time')
+
         events = get_user_upcoming_events(squirl)
         paginator = Paginator(events, 2)
         page_number = request.GET.get('page')
         suggested_group = get_suggested_group()
         date= datetime.today()
         events_list = UserEventPlan.objects.filter(squirl_user__squirl_user = request.user).order_by('event__start_time')
-       # events_json = json.dumps(list(events_list), cls=DjangoJSONEncoder)
+      
         try:
             page = paginator.page(page_number)
         except PageNotAnInteger:
             page = paginator.page(1)
         except EmptyPage:
             page = paginator.page(paginator.num_pages)
-            #following line will throw an error until you are ensured that the user is signed in
+
         join_group_formset = gm.get_join_group_formset(Squirl.objects.get(squirl_user= request.user))
         calendar = get_calendar_events(request.user, date)
-##        print("friends")
-##        print(friend_notifications)
-##        print("events")
-##        print(event_notices)
+
         context = {'formset': event_notices,
                    'user_event_list': events,
                    'user_events': page,
                    'calendar' : mark_safe(calendar),
                    'suggested_group': suggested_group,
-##                   'notif_events': notification_events,
+
                    'friend_formset': friend_notifications,
                    'join_group_formset': join_group_formset,
                    'sub_group_formset': gm.get_sub_group_notifications_formset(get_squirl(request.user.id))
@@ -274,7 +188,7 @@ def event_page(request, event_id):
                 else:
                     return HttpResponse("In progress 1")
             else:
-                #TODO You need to check if user can view all participants or not
+                
                 attendance=UserEventPlan.objects.filter(event__pk =event_id)
                 return render(request, 'squirl/eventPage.html', {'event':event, 'attendance': attendance})
         except Event.DoesNotExist:
@@ -304,7 +218,7 @@ def add_event(request):
             form = CreateEventForm(request.POST)
             print form['startTime']
             if form.is_valid():
-                #TODO Save the object
+                
                 data = form.cleaned_data
                 event = Event()
                 if form.cleaned_data.get('isUserEvent'):
@@ -344,25 +258,27 @@ def add_event(request):
                         groupEvent.save()
                         members = Member.objects.filter(group = groupEvent.group)
                         for member in members:
-                            notice = Notice()
-                            notice.user = member.user
-                            notice.save()
-                            eventNotification = EventNotification()
-                            eventNotification.event =event
-                            eventNotification.notice= notice
-                            eventNotification.save()
+                            if get_event_notification_by_user_and_event(member.user, event) is None:
+                                notice = Notice()
+                                notice.user = member.user
+                                notice.save()
+                                eventNotification = EventNotification()
+                                eventNotification.event =event
+                                eventNotification.notice= notice
+                                eventNotification.save()
                         
                     else:
                         return HttpResponse("Try again")
                 friends = data.get('friends')
                 for invite in friends:
-                    notice = Notice()
-                    notice.user=invite
-                    notice.save()
-                    eventNotification=EventNotification()
-                    eventNotification.event =event
-                    eventNotification.notice=notice
-                    eventNotification.save()
+                    if get_event_notification_by_user_and_event(invite, event) is None:
+                        notice = Notice()
+                        notice.user=invite
+                        notice.save()
+                        eventNotification=EventNotification()
+                        eventNotification.event =event
+                        eventNotification.notice=notice
+                        eventNotification.save()
                 notice = Notice()
                 notice.user = get_squirl(request.user.id)
                 notice.save()
@@ -491,7 +407,7 @@ def profile_page(request, user_id):
 
                     #Check if the otehr person has friended/or worse this person
 
-                    other_connection = Connection.objects.filter(user__squirl_user=squirl, relation__user__squirl_user =request.user)
+                    other_connection = Connection.objects.filter(user=squirl, relation__user__squirl_user =request.user)
                     if not other_connection:
                         #search for a friend request
                         friend_notification = FriendNotification.objects.filter(user__squirl_user=request.user, notice__user=squirl)

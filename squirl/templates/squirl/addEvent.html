@@ -28,7 +28,7 @@
         <div id="groupErrors"></div>
     </div>
 
-    <div>{{form.friends.label}}{{form.friends}}
+    <div>{% if form.friends %}{{form.friends.label}}{{form.friends}} {%endif%}
         <div id="friendErrors"></div>
     </div>
         </div>

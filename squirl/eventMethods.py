@@ -127,7 +127,12 @@ def get_user_upcoming_events(squirl):
 
 
 
-
+def get_event_notification_by_user_and_event(squirl, event):
+    try:
+        toReturn = EventNotification.objects.get(notice__user = squirl, event= event)
+        return toReturn
+    except EventNotification.DoesNotExist:
+        return None
 
 
 
