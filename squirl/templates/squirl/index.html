@@ -21,23 +21,32 @@
             
             <form method="post">
                 {% csrf_token %}
-                {% if formset %}
+                {% if formset.forms %}
                 <h4>Event Notifications</h4> {%endif%}
                 {{formset.management_form}} {% for orm in formset %}
                 <p> <a href='#' onclick="getEvent({{orm.eventId.value}})"> {{orm.eventName.value}}</a> {{orm.response}}{{orm.eventName}}{{orm.eventId}} {{orm.noticeId}}</p>
                 {%endfor%}
+                {% if friend_formset.forms %}
                 <h4>Friend Notifications</h4>
+                {% endif %}
                 {{friend_formset.management_form}} {% for f_form in friend_formset %}
                 <p>
                     {% get_username_from_userid f_form.friend.value %} {{f_form.friend}} {{f_form.relation}}
                 </p>
                 {% endfor %}
+                
+                {% if join_group_formset.forms %}
                 <h4>Join Group Notifications</h4>
+                {% endif %}
                 {{join_group_formset.management_form}} {% for j_form in join_group_formset %}
                 <p><a href="/squirl/group/{{j_form.group.value | urlencode}}">{{j_form.group.value}}</a> {{j_form.group}}
                     <a href="/squirl/profile/{{j_form.user.value}}">{%get_username_from_userid j_form.user.value%}</a> {{j_form.user}}{{j_form.role}}</p>
 
-                {%endfor%} {{sub_group_formset.management_form}} {% for sbForm in sub_group_formset%} {% print_sub_group_request_form sbForm.subNoticeModel.value %} {{sbForm}} {%endfor%}
+                {%endfor%}  {% if sub_group_formset.forms %}<h4>Sub Group Notifications</h4> {%endif %} {{sub_group_formset.management_form}} {% for sbForm in sub_group_formset%} {% print_sub_group_request_form sbForm.subNoticeModel.value %} {{sbForm}} {%endfor%}
+                
+                {% if not formset.forms and not friend_formset.forms and not join_group_formset.forms and not sub_group_formset.forms %}
+                <h4>You have no notifications.</h4>
+                {%endif %}
                 <input type="submit" value="Submit">
             </form>{%comment %} {%for event in notif_events %}
             <p>{{event.event.name}}</p>{%endfor%} {%endcomment%}

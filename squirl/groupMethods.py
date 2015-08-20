@@ -119,7 +119,7 @@ def get_join_group_formset(squirl):
             initial_list.append({'user': notice.user.squirl_user.id, 'group': notice.notice.group, })
        
         return join_group_formset(initial=initial_list, prefix='joinGroup')
-    return join_group_formset
+    return join_group_formset(prefix='joinGroup')
 def validate_join_group_formset(formset, squirl):
     valid = True
     groups = get_groups_user_admin(squirl)
@@ -328,8 +328,9 @@ def get_sub_group_notification_by_id(notice_id):
 
 def get_sub_group_notifications_formset(squirl):
     adminGroups = get_groups_user_admin(squirl)
+    formset = formset_factory(SubGroupNotificationForm, extra =0)
     if adminGroups is not None:
-        formset = formset_factory(SubGroupNotificationForm, extra =0)
+        
         initial_list =[]
         for tGroup in adminGroups:
             notices = SubGroupNotification.objects.filter(toGroup=tGroup, viewed = False)
@@ -338,7 +339,7 @@ def get_sub_group_notifications_formset(squirl):
                 initial_list.append({'subNoticeModel': tNotice})
         return formset(initial=initial_list, prefix='subGroupNotifications')
     else:
-        return None
+        return formset(prefix='subGroupNotifications')
 
 
 def validate_sub_group_notification_post(formset, squirl):
