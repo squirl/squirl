@@ -223,7 +223,7 @@ def add_event(request):
                 event = Event()
                 if form.cleaned_data.get('isUserEvent'):
                     userEvent = UserEvent()
-		    userEvent.creator = Squirl.objects.get(squirl_user= request.user)
+                    userEvent.creator = Squirl.objects.get(squirl_user= request.user)
 		    event.main_location = Location.objects.get(id = data.get('location').id)
                     event.start_time=data.get('startTime')
                     event.end_time=data.get('endTime')
