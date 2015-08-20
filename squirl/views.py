@@ -12,9 +12,9 @@ from datetime import datetime
 from django.shortcuts import redirect
 from .forms import CreateEventForm, CreateGroupForm, CreateUserForm, EventNotificationForm, EventFilterForm, SendFriendRequestForm, FriendNotificationForm
 from django.forms.formsets import formset_factory
-import groupMethods as gm
+from .import groupMethods as gm
 from .groupForms import JoinGroupRequestForm, SubGroupNotificationForm
-import friendMethods as fm
+from .import friendMethods as fm
 from .eventMethods import display_event, get_user_event_notifications, validate_event_notifications_formset, create_from_event_notification_formset, get_user_upcoming_events, get_event_notification_by_user_and_event
 #Get javascript going
 import json
@@ -224,13 +224,13 @@ def add_event(request):
                 if form.cleaned_data.get('isUserEvent'):
                     userEvent = UserEvent()
                     userEvent.creator = Squirl.objects.get(squirl_user= request.user)
-		    event.main_location = Location.objects.get(id = data.get('location').id)
+                    event.main_location = Location.objects.get(id = data.get('location').id)
                     event.start_time=data.get('startTime')
                     event.end_time=data.get('endTime')
                     event.name=data.get('title')
                     event.description= data.get('description')
-		    event.save()
-		    userEvent.event = event
+                    event.save()
+                    userEvent.event = event
                     userEvent.save()
                     
                 else:

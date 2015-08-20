@@ -97,7 +97,6 @@ def get_groups_user_admin(squirl):
         groups = []
         for member in memberships:
             groups.append(member.group)
-
         return groups
     else:
         return None
@@ -147,7 +146,6 @@ def create_members_join_group_formset(formset):
             group = get_group(data['group'])
             if get_member(s_user, group) is None:
                 role = int(data['role'])
-                print role
                 if role != 0:
                     print(role)
                     notice = get_group_notification(s_user, group)
@@ -188,7 +186,6 @@ def get_sub_group_request(group, squirl):
     
 def validate_create_subgroup_request_form(data, squirl):
     group = data['group2']
-    print group
     admin_groups= get_groups_user_admin(squirl)
     if group not in admin_groups:
         return False
@@ -376,7 +373,7 @@ def handle_sub_group_notification_post(formset, squirl):
                 
             notice.viewed = True
             notice.save()
-        print "action {0}".format(action)
+
 
     return "Success"
 

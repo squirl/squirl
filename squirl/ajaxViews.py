@@ -14,7 +14,6 @@ def handle_sub_group_request(request):
             success = True
             print("post")
             #handle the post
-            print request.POST
             form = CreateSubGroupRequestForm(request.POST)
            
             
