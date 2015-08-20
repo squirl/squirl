@@ -216,7 +216,7 @@ def add_event(request):
         form = CreateEventForm()
         if request.method =='POST':
             form = CreateEventForm(request.POST)
-            print form['startTime']
+            
             if form.is_valid():
                 
                 data = form.cleaned_data
