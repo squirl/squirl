@@ -117,7 +117,7 @@ def index(request):
             if sub_notif_post_formset.is_valid():
                 valid = valid and gm.validate_sub_group_notification_post(sub_notif_post_formset, squirl)
             else:
-                print "sub form not valid"
+                print ("sub form not valid")
                 valid = False
             if valid:
                 gm.create_members_join_group_formset(join_group_formset)
