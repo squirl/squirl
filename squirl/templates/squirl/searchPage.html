@@ -1,5 +1,6 @@
-{%extends "squirl/base.html"%} {% load staticfiles %} {% load i18n%} {%load utility_tags%}{%block links_to_static_files %}
+{%extends "squirl/base.html"%} {% load staticfiles %} {% load i18n%} {% load utility_tags %}{%block links_to_static_files %}
 <link rel="stylesheet" type="text/css" href="{% static 'squirl/searchPageLayout.css' %}" />{% endblock %} {%block content%}
+<div id="content">
 <div id="sidebar">
     <div class="filters">
         <h6> {%trans "Filter by Interest" %}</h6>
@@ -33,4 +34,5 @@
 <div id="userList"><h3>Users</h3> {%for user in user_list %}
  <div class="person"><h4><a href="/squirl/profile/{{user.squirl_user.id}}">{{user.squirl_user.username}}</a></h4></div>
     {%endfor %}
-</div>{%endblock%}
+</div>
+    </div>{%endblock%}

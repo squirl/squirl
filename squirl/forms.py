@@ -8,6 +8,14 @@ from django.forms import MultiWidget
 
 alphanumeric = RegexValidator(r'^[0-9a-zA-Z]*$', 'Only alphanumeric characters are allowed.', code = 'invalid_characters')
 standard_validator = RegexValidator(r'^[0-9a-zA-Z-]*$', 'Only alphanumeric characters and "-" are allowed.', code = 'invalid_characters')
+
+class InterestsForm(forms.Form):
+    interest=forms.CharField(
+        max_length=150,
+        required=True,
+        validators=[alphanumeric],
+        )
+    
 class CreateEventForm(forms.Form):
     
     error_css_class = 'error'
@@ -68,12 +76,12 @@ class CreateGroupForm(forms.Form):
         max_length=1000,
         widget=forms.Textarea
         )
-    interests = forms.ModelMultipleChoiceField(
-        label='Interests',
-        queryset=Interest.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=True
-        )
+##    interests = forms.ModelMultipleChoiceField(
+##        label='Interests',
+##        queryset=Interest.objects.all(),
+##        widget=forms.CheckboxSelectMultiple,
+##        required=True
+##        )
     friends = forms.ModelMultipleChoiceField(
         label='Friends',
         queryset=Squirl.objects.all(),

@@ -22,7 +22,7 @@ function viewGroup() {
 
 function validateFields() {
     var valid = true;
-    var regexp = /^[a-zA-Z0-9-]+$/;
+    var regexp = /^[a-zA-Z0-9 -]+$/;
     //title error
     var title = document.getElementById('id_title');
     var titleError = document.getElementById('titleErrors');
@@ -38,7 +38,7 @@ function validateFields() {
     }
 
     //startTime
-    var startTime = document.getElementById('id_startTime');
+    var startTime = document.getElementById('id_startTime_0');
     var startTimeError = document.getElementById('startTimeErrors');
 
     var messStartError = '';
@@ -52,7 +52,7 @@ function validateFields() {
 
     //endtime
     var endTimeError = document.getElementById('endTimeErrors');
-    var endTime = document.getElementById('id_endTime');
+    var endTime = document.getElementById('id_endTime_0');
 
     var messEndError = '';
 
@@ -143,4 +143,4 @@ function formSubmit(event) {
 }
 
 var elForm = document.getElementById("eventForm");
-elForm.addEventListener('click', formSubmit, false);
+elForm.addEventListener('submit', formSubmit, false);

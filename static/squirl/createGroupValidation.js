@@ -4,11 +4,14 @@ var interests = document.querySelectorAll("#id_interests input");
 
 function validateFields() {
     var valid = true;
-
+    var regexp = /^[a-zA-Z0-9 -]+$/;
     var groupNameErrorMessage = "";
     if (groupName.value.length > 100 || groupName.value.length <= 0) {
         valid = false;
         groupNameErrorMessage = "The group name must be more than 0 charactersbut no more than 100 characters";
+    }
+    if (groupName.value.search(regexp) == -1) {
+        groupNameErrorMessage += " Only alphanumeric characters and '-' are allowed.";
     }
 
     //description validation.

@@ -1,8 +1,26 @@
 {%extends "squirl/base.html"%}{%load static %} {%block content%}
-<h1>Create A New Group!</h1>
-<form onsubmit='return validateFields()' , method="post">
-    {% csrf_token %}
-    <div id="errors"></div>{{form.as_p}}
-    <input type="submit" value="Create Event!">
-</form>
+<div id="content">
+    <div>
+        <h1>Create A New Group!</h1>
+    </div>
+    <form onsubmit='return validateFields()' , method="post">
+        {% csrf_token %}
+        <div id="errors"></div>
+        <div>
+            {{form.title.label}} {{form.title}}
+        </div>
+
+        <div>
+            {{form.description.label}} {{form.description}}
+        </div>
+        <div>
+            {% if form.friends %} {{form.friends.label}} {%endif %}{{form.friends}}
+        </div>
+        <div>
+            <h4>Interests:</h4>
+            {{interests.management_form}} {% for form in interests.forms%} {{form.interest}} {% endfor%}
+        </div>
+        <input type="submit" value="Create Event!">
+    </form>
+</div>
 <script type="text/javascript" src="{% static 'squirl/createGroupValidation.js' %}"></script>{%endblock%}

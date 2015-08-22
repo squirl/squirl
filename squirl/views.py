@@ -4,7 +4,7 @@ from .models import Event, UserEventPlan, UserEvent, Squirl, GroupEvent, Member,
 from .models import Group, Location, Relation, FriendNotification
 from django.utils.safestring import mark_safe
 from django.shortcuts import render_to_response
-from .methods import get_calendar_events, get_suggested_group, get_display_month, get_friend_notifications, get_squirl
+from .methods import get_calendar_events, get_suggested_group, get_display_month, get_friend_notifications, get_squirl, get_interests_formset
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.models import User
@@ -213,6 +213,7 @@ def add_event(request):
     if not request.user.is_authenticated():
         return redirect(squirl_login)
     else:
+        interests = get_interests_formset()
         form = CreateEventForm()
         if request.method =='POST':
             form = CreateEventForm(request.POST)
@@ -298,7 +299,7 @@ def add_event(request):
             form.fields['group'].queryset = Group.objects.none()
         else:
             form.fields['group'].queryset = Group.objects.filter(pk__in=[item.pk for item in f_groups])
-        return render(request, 'squirl/addEvent.html', {'form': form})
+        return render(request, 'squirl/addEvent.html', {'form': form, 'interests': interests})
 def create_group(request):
     if not request.user.is_authenticated():
         return redirect(squirl_login)
@@ -306,15 +307,23 @@ def create_group(request):
     else:
         squirl= Squirl.objects.get(squirl_user= request.user)
         form = CreateGroupForm()
+        interests = get_interests_formset()
         if request.method =='POST':
-            
+            interests = formset_factory(InterestsForm, extra=0)
+            interests= interests(request.POST, request.FILES, prefix="interests")
             form = CreateGroupForm(request.POST)
-            if form.is_valid():
+            if form.is_valid() and interests.is_valid():
+               
+                
                 data= form.cleaned_data
                 group = Group()
                 group.name = data.get('title')
-                for inter in data.get('interests'):
-                    group.interests.add(inter.id)
+                #TODO handle interests
+
+                all_interests= interests.cleaned_data
+##                for inter in all_interests:
+                #TODO continue here
+                    
                 
                 group.description=data.get('description')
                 group.save()
@@ -326,13 +335,13 @@ def create_group(request):
                 return HttpResponse("create group")
             else:
                 form.fields['friends'].queryset = Squirl.objects.filter(pk__in=set( Connection.objects.filter(relation__user =squirl).values_list('user', flat=True)))
-                return render(request, 'squirl/createGroup.html', {'form': form})
+                return render(request, 'squirl/createGroup.html', {'form': form, 'interests': interests})
 
         else:
             groupForm=CreateGroupForm()
             
             groupForm.fields['friends'].queryset = Squirl.objects.filter(pk__in=set( Connection.objects.filter(relation__user =squirl).values_list('user', flat=True)))
-            return render(request, 'squirl/createGroup.html', {'form': groupForm})
+            return render(request, 'squirl/createGroup.html', {'form': groupForm, 'interests': interests})
 
 def search_page(request):
     if not request.user.is_authenticated():

@@ -3,7 +3,7 @@ from .models import Event, Notice
 from .models import UserEventPlan, FriendNotification, Squirl
 from datetime import datetime, timedelta
 from django.forms.formsets import formset_factory
-from .forms import FriendNotificationForm
+from .forms import FriendNotificationForm, InterestsForm
 from django.utils.html import conditional_escape as esc
 import random
 def get_notice(notice_id):
@@ -87,3 +87,8 @@ def get_squirl(user_id):
         return squirl
     except Squirl.DoesNotExist :
         return None
+def get_interests_formset():
+    formset = formset_factory(InterestsForm, extra=1)
+
+    return formset(prefix='interests')
+    

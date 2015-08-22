@@ -1,0 +1,8 @@
+#topMenuBar{
+width: 100%;
+}
+#topMenuBar div{
+    display: inline-block;
+    width: 7%;
+    float: left;
+}
