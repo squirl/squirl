@@ -1,6 +1,6 @@
 var groupName = document.getElementById("id_title");
 var description = document.getElementById("id_description");
-var interests = document.querySelectorAll("#id_interests input");
+var interests = $("#interests input[type=text]");
 
 function validateFields() {
     var valid = true;
@@ -32,8 +32,9 @@ function validateFields() {
     interestsErrorMessage = "";
     var found = false;
     var i =0;
+    console.debug(interests.length);
     for (i = 0; i < interests.length; i++) {
-        if (interests[i].checked) {
+        if ($(interests[i]).val().length >0) {
             found = true;
         }
     }

@@ -1,6 +1,19 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.gis.db import models
 
+class Zipcode(models.Model):
+    code = models.CharField(max_length=5)
+##    poly = models.PolygonField()
+##    objects = models.GeoManager()
+    
+class Address(models.Model):
+    num = models.IntegerField()
+    street = models.CharField(max_length=100)
+    city = models.CharField(max_length=100)
+    state = models.ForeignKey('State')
+    zipcode = models.ForeignKey(Zipcode)
+    #objects = models.GeoManager()
 #Might not have to do below lin 05/27/15
 #will implement model mixins shortly
 
@@ -186,15 +199,20 @@ class Group( models.Model):
     sub_group = models.ManyToManyField('Group',null=True, blank = True)
 ##    location = models.ForeignKey('Location', default=DEFAULT_LOCATION)
 
-    location = models.ForeignKey('Location', null = True, blank = True)
+    location = models.ForeignKey('Address', null = True, blank = True)
     def __str__(self):
         return self.name
     def __unicode__(self):
         return self.name
 
 
-    
-
+class State(models.Model):
+    name = models.CharField(max_length=100)
+    abbr = models.CharField(max_length=2)
+    def __str__(self):
+        return self.name
+    def __unicode__(self):
+        return self.name
     
 
     

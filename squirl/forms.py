@@ -3,7 +3,7 @@ from django.db import models
 from django.forms import ModelForm
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
-from .models import Location, Group, Squirl, Relation, Connection, Interest, Event
+from .models import Location, Group, Squirl, Relation, Connection, Interest, Event, Address, State
 from django.forms import MultiWidget
 
 alphanumeric = RegexValidator(r'^[0-9a-zA-Z]*$', 'Only alphanumeric characters are allowed.', code = 'invalid_characters')
@@ -141,4 +141,20 @@ class EventFilterForm(forms.Form):
         required=False,
         queryset=Interest.objects.all(),
         )
-
+class AddressForm(forms.Form):
+    num=forms.IntegerField(
+        min_value=0,
+        )
+    street=forms.CharField(max_length=100)
+    city=forms.CharField(max_length=100)
+    state=forms.ModelChoiceField(
+        queryset=State.objects.all()
+        )
+    zipcode=forms.IntegerField(
+        min_value=10000,
+        max_value=99999,
+        widget=forms.NumberInput(),
+        )
+##    class Meta:
+##        model=Address
+##        fields=['num','street','city','state','zipcode']

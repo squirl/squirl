@@ -2,7 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 from .models import Squirl,Interest,Event, Group, Location, UserEventPlan, UserEvent, Member, Relation, Connection, EventNotification, Notice
-from .models import  FriendNotification, JoinGroupNotification
+from .models import  FriendNotification, JoinGroupNotification, State, Zipcode, Address
 class SquirlAdmin(admin.ModelAdmin):
     
     fieldsets = [
@@ -24,3 +24,6 @@ admin.site.register(EventNotification)
 admin.site.register(Notice)
 admin.site.register(FriendNotification)
 admin.site.register(JoinGroupNotification)
+admin.site.register(State)
+admin.site.register(Zipcode)
+admin.site.register(Address)

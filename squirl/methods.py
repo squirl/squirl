@@ -1,6 +1,6 @@
 from .models import Group
-from .models import Event, Notice
-from .models import UserEventPlan, FriendNotification, Squirl
+from .models import Event, Notice, Address, Zipcode
+from .models import UserEventPlan, FriendNotification, Squirl, Interest
 from datetime import datetime, timedelta
 from django.forms.formsets import formset_factory
 from .forms import FriendNotificationForm, InterestsForm
@@ -92,3 +92,54 @@ def get_interests_formset():
 
     return formset(prefix='interests')
     
+def get_interest_by_name(name):
+    try:
+        toReturn = Interest.objects.get(name=name)
+        return toReturn
+    except Interest.DoesNotExist:
+        return None
+"""
+Validates the address form.
+"""
+def validate_address_form(data):
+    valid = len(str(data['num'])) > 0 and len(data['street']) > 0 and len(data['city']) > 0 and len(str(data['zipcode'])) == 5
+    return valid
+
+"""Finds a zipcode"""
+def get_zipcode(code):
+    try:
+        zip = Zipcode.objects.get(code=code)
+        return zip
+    except Zipcode.DoesNotExist:
+        return None
+        
+
+"""Finds and returns address from form data if it exists. otherwise returns none"""
+def get_address_from_form(data):
+    zip = get_zipcode(data['zipcode'])
+    if zip is None:
+        return None
+    try:
+        addr = Address.objects.get(num=data['num'], street=data['street'], city=data['city'], state=data['state'], zipcode=zip)
+        return addr
+    except Address.DoesNotExist:
+        return None
+def create_zipcode(code):
+    zip = Zipcode()
+    zip.code = code
+    zip.save()
+    return zip
+    
+"""Creates an address from form data"""
+def create_address(data):
+    zip = get_zipcode(data['zipcode'])
+    if zip is None:
+        zip = create_zipcode(data['zipcode'])
+    address = Address()
+    address.num = data['num']
+    address.street=data['street']
+    address.city=data['city']
+    address.state=data['state']
+    address.zipcode=zip
+    address.save()
+    return address

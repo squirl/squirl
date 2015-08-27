@@ -16,11 +16,13 @@
         <div>
             {% if form.friends %} {{form.friends.label}} {%endif %}{{form.friends}}
         </div>
-        <div>
+        {{addressForm.as_p}}
+        <div id="interests">
             <h4>Interests:</h4>
             {{interests.management_form}} {% for form in interests.forms%} {{form.interest}} {% endfor%}
         </div>
-        <input type="submit" value="Create Event!">
+        <input type="submit" value="Create Group!">
     </form>
 </div>
-<script type="text/javascript" src="{% static 'squirl/createGroupValidation.js' %}"></script>{%endblock%}
+{%endblock%}
+{% block endScripts %}<script type="text/javascript" src="{% static 'squirl/createGroupValidation.js' %}"></script> {%endblock %}

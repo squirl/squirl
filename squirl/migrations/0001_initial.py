@@ -13,13 +13,19 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
+            name='Address',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('num', models.IntegerField()),
+                ('street', models.CharField(max_length=100)),
+                ('city', models.CharField(max_length=100)),
+            ],
+        ),
+        migrations.CreateModel(
             name='Connection',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
             ],
-            options={
-            },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Event',
@@ -31,9 +37,6 @@ class Migration(migrations.Migration):
                 ('description', models.CharField(max_length=1000)),
                 ('privacy', models.IntegerField(default=0, choices=[(0, b'open'), (1, b'invite only'), (2, b'friends only'), (3, b'acquaintance only')])),
             ],
-            options={
-            },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='EventNotification',
@@ -41,18 +44,12 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('event', models.ForeignKey(to='squirl.Event')),
             ],
-            options={
-            },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='FriendNotification',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
             ],
-            options={
-            },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Group',
@@ -60,9 +57,6 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, serialize=False, primary_key=True)),
                 ('description', models.CharField(max_length=1000)),
             ],
-            options={
-            },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='GroupEvent',
@@ -71,9 +65,6 @@ class Migration(migrations.Migration):
                 ('event', models.ForeignKey(to='squirl.Event')),
                 ('group', models.ForeignKey(to='squirl.Group')),
             ],
-            options={
-            },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='GroupNotice',
@@ -82,9 +73,6 @@ class Migration(migrations.Migration):
                 ('viewed', models.BooleanField(default=0)),
                 ('group', models.ForeignKey(to='squirl.Group')),
             ],
-            options={
-            },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Interest',
@@ -93,9 +81,6 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(default=b'None', max_length=100)),
                 ('description', models.CharField(max_length=300, null=True, blank=True)),
             ],
-            options={
-            },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='JoinGroupNotification',
@@ -103,9 +88,6 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('notice', models.ForeignKey(to='squirl.GroupNotice')),
             ],
-            options={
-            },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Location',
@@ -113,9 +95,6 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=200)),
             ],
-            options={
-            },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Member',
@@ -124,9 +103,6 @@ class Migration(migrations.Migration):
                 ('role', models.IntegerField(default=1, choices=[(0, b'Owner'), (1, b'Member'), (2, b'Editor')])),
                 ('group', models.ForeignKey(to='squirl.Group')),
             ],
-            options={
-            },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Notice',
@@ -134,9 +110,6 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('viewed', models.BooleanField(default=0)),
             ],
-            options={
-            },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Relation',
@@ -144,9 +117,6 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('relation', models.IntegerField(default=0, choices=[(0, b'acquaintance'), (1, b'block'), (2, b'friend')])),
             ],
-            options={
-            },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='Squirl',
@@ -156,9 +126,14 @@ class Migration(migrations.Migration):
                 ('interests', models.ManyToManyField(to='squirl.Interest', null=True, blank=True)),
                 ('squirl_user', models.OneToOneField(to=settings.AUTH_USER_MODEL)),
             ],
-            options={
-            },
-            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='State',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=100)),
+                ('abbr', models.CharField(max_length=2)),
+            ],
         ),
         migrations.CreateModel(
             name='SubGroupNotification',
@@ -169,9 +144,6 @@ class Migration(migrations.Migration):
                 ('fromGroup', models.ForeignKey(related_name='fromGroup', blank=True, to='squirl.Group', null=True)),
                 ('toGroup', models.ForeignKey(related_name='toGroup', blank=True, to='squirl.Group', null=True)),
             ],
-            options={
-            },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='UserEvent',
@@ -180,9 +152,6 @@ class Migration(migrations.Migration):
                 ('creator', models.ForeignKey(blank=True, to='squirl.Squirl', null=True)),
                 ('event', models.ForeignKey(blank=True, to='squirl.Event', null=True)),
             ],
-            options={
-            },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='UserEventPlan',
@@ -192,92 +161,92 @@ class Migration(migrations.Migration):
                 ('event', models.ForeignKey(blank=True, to='squirl.Event', null=True)),
                 ('squirl_user', models.ForeignKey(blank=True, to='squirl.Squirl', null=True)),
             ],
-            options={
-            },
-            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Zipcode',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('code', models.CharField(max_length=5)),
+            ],
         ),
         migrations.AddField(
             model_name='relation',
             name='user',
             field=models.ForeignKey(blank=True, to='squirl.Squirl', null=True),
-            preserve_default=True,
         ),
         migrations.AddField(
             model_name='notice',
             name='user',
             field=models.ForeignKey(to='squirl.Squirl'),
-            preserve_default=True,
         ),
         migrations.AddField(
             model_name='member',
             name='user',
             field=models.ForeignKey(blank=True, to='squirl.Squirl', null=True),
-            preserve_default=True,
         ),
         migrations.AddField(
             model_name='joingroupnotification',
             name='user',
             field=models.ForeignKey(blank=True, to='squirl.Squirl', null=True),
-            preserve_default=True,
         ),
         migrations.AddField(
             model_name='group',
             name='interests',
             field=models.ManyToManyField(to='squirl.Interest'),
-            preserve_default=True,
         ),
         migrations.AddField(
             model_name='group',
             name='location',
-            field=models.ForeignKey(blank=True, to='squirl.Location', null=True),
-            preserve_default=True,
+            field=models.ForeignKey(blank=True, to='squirl.Address', null=True),
         ),
         migrations.AddField(
             model_name='group',
             name='sub_group',
             field=models.ManyToManyField(to='squirl.Group', null=True, blank=True),
-            preserve_default=True,
         ),
         migrations.AddField(
             model_name='friendnotification',
             name='notice',
             field=models.ForeignKey(to='squirl.Notice'),
-            preserve_default=True,
         ),
         migrations.AddField(
             model_name='friendnotification',
             name='user',
             field=models.ForeignKey(to='squirl.Squirl'),
-            preserve_default=True,
         ),
         migrations.AddField(
             model_name='eventnotification',
             name='notice',
             field=models.ForeignKey(to='squirl.Notice'),
-            preserve_default=True,
         ),
         migrations.AddField(
             model_name='event',
             name='interests',
             field=models.ManyToManyField(to='squirl.Interest', null=True, blank=True),
-            preserve_default=True,
         ),
         migrations.AddField(
             model_name='event',
             name='main_location',
             field=models.ForeignKey(to='squirl.Location'),
-            preserve_default=True,
         ),
         migrations.AddField(
             model_name='connection',
             name='relation',
             field=models.ForeignKey(to='squirl.Relation'),
-            preserve_default=True,
         ),
         migrations.AddField(
             model_name='connection',
             name='user',
             field=models.ForeignKey(blank=True, to='squirl.Squirl', null=True),
-            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='address',
+            name='state',
+            field=models.ForeignKey(to='squirl.State'),
+        ),
+        migrations.AddField(
+            model_name='address',
+            name='zipcode',
+            field=models.ForeignKey(to='squirl.Zipcode'),
         ),
     ]

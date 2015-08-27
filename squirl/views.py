@@ -4,13 +4,13 @@ from .models import Event, UserEventPlan, UserEvent, Squirl, GroupEvent, Member,
 from .models import Group, Location, Relation, FriendNotification
 from django.utils.safestring import mark_safe
 from django.shortcuts import render_to_response
-from .methods import get_calendar_events, get_suggested_group, get_display_month, get_friend_notifications, get_squirl, get_interests_formset
+from .methods import get_calendar_events, get_suggested_group, get_display_month, get_friend_notifications, get_squirl, get_interests_formset, get_interest_by_name, validate_address_form, get_address_from_form, create_address
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.models import User
 from datetime import datetime
 from django.shortcuts import redirect
-from .forms import CreateEventForm, CreateGroupForm, CreateUserForm, EventNotificationForm, EventFilterForm, SendFriendRequestForm, FriendNotificationForm
+from .forms import CreateEventForm, CreateGroupForm, CreateUserForm, EventNotificationForm, EventFilterForm, SendFriendRequestForm, FriendNotificationForm, InterestsForm, AddressForm
 from django.forms.formsets import formset_factory
 from .import groupMethods as gm
 from .groupForms import JoinGroupRequestForm, SubGroupNotificationForm
@@ -202,7 +202,8 @@ def group_page(request, group_id):
         g_events = GroupEvent.objects.filter(group=group)
         squirl= get_squirl(request.user.id)
         form = gm.get_sub_group_request(group, squirl)
-        form.fields['group1'].widget = forms.HiddenInput()
+	if form:
+        	form.fields['group1'].widget = forms.HiddenInput()
         return render(request, 'squirl/groupPage.html', {'group': group, 'members': members, 'groupEvents':g_events, 'subGroupForm': form})
     except Group.DoesNotExist:
         return HttpResponse("Group does not exist")
@@ -308,40 +309,65 @@ def create_group(request):
         squirl= Squirl.objects.get(squirl_user= request.user)
         form = CreateGroupForm()
         interests = get_interests_formset()
+        addressForm = AddressForm()
         if request.method =='POST':
             interests = formset_factory(InterestsForm, extra=0)
             interests= interests(request.POST, request.FILES, prefix="interests")
             form = CreateGroupForm(request.POST)
-            if form.is_valid() and interests.is_valid():
+            addressForm = AddressForm(request.POST)
+            if form.is_valid() and interests.is_valid() and addressForm.is_valid() and validate_address_form(addressForm.cleaned_data):
                
                 
                 data= form.cleaned_data
                 group = Group()
                 group.name = data.get('title')
-                #TODO handle interests
-
-                all_interests= interests.cleaned_data
-##                for inter in all_interests:
-                #TODO continue here
-                    
                 
+
+                all_interests= []
+                valid_interest = False
+                for interform in interests:
+                
+                    inter = interform.cleaned_data
+                    if len(inter['interest']) > 0:
+                        valid_interest=True
+                    interest = get_interest_by_name(inter['interest'])
+                    #if the interest does not exist create it.
+                    if interest is None:
+                        interest = Interest()
+                        interest.name = inter['interest']
+                        interest.save()
+                        all_interests.append(interest)
+                    else:
+                        all_interests.append(interest)
+                
+                if not valid_interest:
+                    form.fields['friends'].queryset = Squirl.objects.filter(pk__in=set( Connection.objects.filter(relation__user =squirl).values_list('user', flat=True)))
+                    return render(request, 'squirl/createGroup.html', {'form': form, 'interests': interests, 'addressForm':addressForm})
+                addr= get_address_from_form(addressForm.cleaned_data)
+                if addr is None:
+                    #create the address
+                    #TODO
+                    addr = create_address(addressForm.cleaned_data)
+                group.location=addr
                 group.description=data.get('description')
                 group.save()
+                for inter in all_interests:
+                    group.interests.add(inter)
                 owner=Member()
                 owner.user=squirl
                 owner.group=group
                 owner.role=0
                 owner.save()
-                return HttpResponse("create group")
+                return redirect(index)
             else:
                 form.fields['friends'].queryset = Squirl.objects.filter(pk__in=set( Connection.objects.filter(relation__user =squirl).values_list('user', flat=True)))
-                return render(request, 'squirl/createGroup.html', {'form': form, 'interests': interests})
+                return render(request, 'squirl/createGroup.html', {'form': form, 'interests': interests, 'addressForm':addressForm})
 
         else:
             groupForm=CreateGroupForm()
             
             groupForm.fields['friends'].queryset = Squirl.objects.filter(pk__in=set( Connection.objects.filter(relation__user =squirl).values_list('user', flat=True)))
-            return render(request, 'squirl/createGroup.html', {'form': groupForm, 'interests': interests})
+            return render(request, 'squirl/createGroup.html', {'form': groupForm, 'interests': interests, 'addressForm':addressForm})
 
 def search_page(request):
     if not request.user.is_authenticated():
