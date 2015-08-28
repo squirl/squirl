@@ -24,7 +24,7 @@ def display_event(event_id):
         responses = UserEventPlan.objects.filter(event=event)
         toReturn = ""
         toReturn += "<p> <h4>%s</h4>" % esc(event.name)
-        toReturn +="<a href= '/QED/event/%s'>Go to event page</a>" %esc(event.id)
+        toReturn +="<a href= '/squirl/event/%s'>Go to event page</a>" %esc(event.id)
         toReturn +="<div>Location: %s</div>" %esc(event.main_location)
         toReturn +="<div>Start: %s </div>" %esc(event.start_time)
         toReturn +="<div>End: %s </div>" %esc(event.end_time)

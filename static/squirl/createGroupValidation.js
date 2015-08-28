@@ -1,6 +1,17 @@
 var groupName = document.getElementById("id_title");
 var description = document.getElementById("id_description");
-var interests = document.querySelectorAll("#id_interests input");
+var interests = $("#interests input[type=text]");
+
+
+$("#addInterest").on("click", function(event){
+    event.preventDefault();
+    interests = $("#interests input[type=text]");
+    var interestList =$("#interests");
+    $("#interests input:last")
+   $("<input id='id_interests-"+ interests.length+ "-interest' maxlength='150' name='interests-"+ interests.length+ "-interest' type='text'>").insertBefore(this);
+    $("#id_interests-TOTAL_FORMS").val(interests.length +1);
+});
+                     
 
 function validateFields() {
     var valid = true;
@@ -32,8 +43,9 @@ function validateFields() {
     interestsErrorMessage = "";
     var found = false;
     var i =0;
+    console.debug(interests.length);
     for (i = 0; i < interests.length; i++) {
-        if (interests[i].checked) {
+        if ($(interests[i]).val().length >0) {
             found = true;
         }
     }

@@ -9,7 +9,7 @@ $('a.eventLink').on('click', function(e){
 function getEvent(eventId){
     var sendData = 'event=' + eventId;
     $.ajaxSetup({cache: false});
-    $.get('/QED/', sendData, function(data){
+    $.get('/squirl/', sendData, function(data){
         $('#eventTemp').html(data);
     });
     

@@ -216,17 +216,41 @@ def add_event(request):
     else:
         interests = get_interests_formset()
         form = CreateEventForm()
+        addressForm = AddressForm()
         if request.method =='POST':
             form = CreateEventForm(request.POST)
+            addressForm= AddressForm(request.POST)
+            interests = formset_factory(InterestsForm, extra=0)
+            interests= interests(request.POST, request.FILES, prefix="interests")
             
-            if form.is_valid():
+            if form.is_valid() and addressForm.is_valid() and validate_address_form(addressForm.cleaned_data) and interests.is_valid():
+                valid_interest = False
+                for interform in interests:
                 
+                    inter = interform.cleaned_data
+                    if len(inter['interest']) > 0:
+                        valid_interest=True
+                all_interests= []
+                for interform in interests:
+                    interest = get_interest_by_name(inter['interest'])
+                    #if the interest does not exist create it.
+                    if interest is None:
+                        interest = Interest()
+                        interest.name = inter['interest']
+                        interest.save()
+                        all_interests.append(interest)
+                    else:
+                        all_interests.append(interest)
                 data = form.cleaned_data
                 event = Event()
+                addr = get_address_from_form(addressForm.cleaned_data)
+                if addr is None:
+                    addr=create_address(addressForm.cleaned_data)
+                    
                 if form.cleaned_data.get('isUserEvent'):
                     userEvent = UserEvent()
                     userEvent.creator = Squirl.objects.get(squirl_user= request.user)
-                    event.main_location = Location.objects.get(id = data.get('location').id)
+                    event.main_location = addr
                     event.start_time=data.get('startTime')
                     event.end_time=data.get('endTime')
                     event.name=data.get('title')
@@ -234,13 +258,14 @@ def add_event(request):
                     event.save()
                     userEvent.event = event
                     userEvent.save()
-                    
+                    for inter in all_interests:
+                        event.interests.add(inter)
                 else:
                     data = form.cleaned_data
                     if data.get('group'):
 			
                         groupEvent = GroupEvent()
-                        event.main_location = Location.objects.get(id=data.get('location').id)
+                        event.main_location = addr
                         event.start_time=data.get('startTime')
                         event.end_time=data.get('endTime')
                         event.name=data.get('title')
@@ -253,6 +278,8 @@ def add_event(request):
                         
                         groupEvent.group=data.get('group')
                         event.save()
+                        for inter in all_interests:
+                            event.interests.add(inter)
                         groupEvent.event = event
 #TODO make sure the user was only submitting data that they had access to.
 
@@ -300,7 +327,7 @@ def add_event(request):
             form.fields['group'].queryset = Group.objects.none()
         else:
             form.fields['group'].queryset = Group.objects.filter(pk__in=[item.pk for item in f_groups])
-        return render(request, 'squirl/addEvent.html', {'form': form, 'interests': interests})
+        return render(request, 'squirl/addEvent.html', {'form': form, 'interests': interests, 'addressForm': addressForm})
 def create_group(request):
     if not request.user.is_authenticated():
         return redirect(squirl_login)

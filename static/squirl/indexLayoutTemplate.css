@@ -26,7 +26,7 @@ td {
 }
 #topMenuBar div {
     height: 100%;
-    width: 33%;
+    width: auto;
     display: inline;
 }
 #upcomingEvents {
@@ -95,7 +95,4 @@ div #calendar {
     width: 40%;
     height: 100%;
     background-color: #AF8200;
-}
-a {
-    color: #10137A;
 }

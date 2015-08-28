@@ -32,8 +32,16 @@
             </div>
         </div>
         <div>
+            <h4>Location</h4>
+            {{addressForm.as_p}}
+        </div>
+        <div>
             <h4>Interests:</h4>
-            {{interests.management_form}} {% for form in interests.forms%} {{form.interest}} {% endfor%}
+            {{interests.management_form}} 
+            <div id="interests">
+                {% for form in interests.forms%} {{form.interest}} {% endfor%}</div>
+             <button id="addInterest" >Add Another Interest</button>
+            <a href="">clickme</a>
         </div>
 
         <input type="submit" value="Create Event!" id="formSubmit">

@@ -31,11 +31,7 @@ class CreateEventForm(forms.Form):
         required = True,
         validators=[standard_validator]
         )
-    location = forms.ModelChoiceField(
-        label='Location',
-        queryset= Location.objects.all(),
-        required=True
-        )
+    
     startTime = forms.SplitDateTimeField(
         input_time_formats=['%H:%M'],
         input_date_formats =['%m/%d/%Y'],

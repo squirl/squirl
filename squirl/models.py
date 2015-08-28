@@ -75,7 +75,7 @@ class JoinGroupNotification(models.Model):
 
 
 class Event(models.Model):
-    main_location = models.ForeignKey(Location)
+    main_location = models.ForeignKey("Address")
     start_time = models.DateTimeField('Start time')
     end_time = models.DateTimeField('End time')
     name = models.CharField(max_length = 150)

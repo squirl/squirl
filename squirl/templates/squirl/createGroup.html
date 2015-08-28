@@ -17,9 +17,14 @@
             {% if form.friends %} {{form.friends.label}} {%endif %}{{form.friends}}
         </div>
         {{addressForm.as_p}}
-        <div id="interests">
+        <div id="interestsForm">
             <h4>Interests:</h4>
-            {{interests.management_form}} {% for form in interests.forms%} {{form.interest}} {% endfor%}
+            {{interests.management_form}}
+            <div id="interests">
+            {% for form in interests.forms%} {{form.interest}} {% endfor%}
+                <button id="addInterest">Add Another Interest</button>
+            </div>
+            
         </div>
         <input type="submit" value="Create Group!">
     </form>

@@ -1,5 +1,14 @@
 var isUserEvent = document.getElementById('id_isUserEvent');
+$("#addInterest").on("click", function(event){
+    event.preventDefault();
+    interests = $("#interests input[type=text]");
+    var interestList =$("#interests");
+    $("#interests input:last")
+   $("<input id='id_interests-"+ interests.length+ "-interest' maxlength='150' name='interests-"+ interests.length+ "-interest' type='text'>").insertBefore(this);
+    $("#id_interests-TOTAL_FORMS").val(interests.length +1);
+});
 $("#formSubmit").on('submit', function(e) {
+    e.preventDefault();
     if(!validateFields()){
         e.preventDefault();
     }
@@ -82,15 +91,7 @@ function validateFields() {
 
 
     //location
-    var location = document.getElementById('id_location');
-    var locationErrors = document.getElementById('locationErrors');
 
-    var messLocation = '';
-
-    if (location[0].value == location.options[location.selectedIndex].value) {
-        messLocation += "Choose a location";
-        valid = false;
-    }
 
     //group/user event
 
@@ -124,7 +125,7 @@ function validateFields() {
 
     descriptionError.innerHTML = messDescription;
 
-    locationErrors.innerHTML = messLocation;
+    
 
     groupErrors.innerHTML = messGroup;
 
