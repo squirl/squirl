@@ -226,7 +226,7 @@ def add_event(request):
             if form.is_valid() and addressForm.is_valid() and validate_address_form(addressForm.cleaned_data) and interests.is_valid():
                 valid_interest = False
                 for interform in interests:
-                
+                    interform.is_valid()
                     inter = interform.cleaned_data
                     if len(inter['interest']) > 0:
                         valid_interest=True
@@ -315,7 +315,7 @@ def add_event(request):
                 eventNotification.event = event
                 eventNotification.notice= notice
                 eventNotification.save()
-                return HttpResponse("Success")
+                return redirect(index)
            
             
         

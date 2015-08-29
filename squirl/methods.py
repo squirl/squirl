@@ -46,7 +46,7 @@ def get_calendar_events(squirl, date = datetime.now().date):
             startdate +=  timedelta(days=1)
             if todaysEvents:
                 for event in todaysEvents:
-                    body= body +"<div><a href='/QED/event/{0}'>{1}</a></div>".format(  event.event.id, esc(event.event.name))
+                    body= body +"<div><a onclick='getEvent({0})' href='/squirl/event/{0}'>{1}</a></div>".format(  event.event.id, esc(event.event.name))
             body= body +'</td>'
         body= body+'</tr>'
     body+='</table>'
