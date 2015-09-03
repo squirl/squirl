@@ -16,9 +16,9 @@
 <link rel="stylesheet" type="text/css" href="{% static 'squirl/indexLayoutTemplate.css' %}" />{% endblock %}{% block content %}
 <div id="sectionMiddle">{%block middle %} 
     <div id="calendar">{{calendar}}</div>{% endblock%} {%block right_side_bar %}
-    <div id="rightSideBar">{% block right_side_bar_content %}Notifications
-        <div>
-            
+    <div id="rightSideBar">{% block right_side_bar_content %}
+        <div id="notifications">
+            Notifications
             <form method="post">
                 {% csrf_token %}
                 {% if formset.forms %}
@@ -50,8 +50,8 @@
                 <input type="submit" value="Submit">
             </form>{%comment %} {%for event in notif_events %}
             <p>{{event.event.name}}</p>{%endfor%} {%endcomment%}
-            <div id="eventTemp"></div>
-        </div>{% endblock %}</div>{% endblock %}</div>
+            
+        </div><div id="eventTemp"></div>{% endblock %}</div>{% endblock %}</div>
 <div id="bottom">
     <div id="suggestedGroup">
         <h3>Suggested Group</h3>
@@ -102,8 +102,8 @@
             <a class="eventLink" href="#" onclick="getEvent({{event.event.id}})"> {{event.event.name }}</a>
             <div class='eventDiscription'>{{event.event.description}}</div>
             <div class='eventTime'>{{event.event.start_time}} to {{event.event.end_time}}</div>
-            <div class="eventLocation">Where: {{event.event.main_location}}</div>
-            <div class="eventGroup">Part of <a class="groupLink" href="/group.html">{{event.group.name}}</a>
+            <div class="eventLocation">Where: {% print_address event.event.main_location %}</div>
+            <div class="eventGroup">{% print_part_of event.event%}<a class="groupLink" href="/group.html">{{event.group.name}}</a>
             </div>
         </div>
         {% endfor %} {% else %}

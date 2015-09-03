@@ -4,7 +4,7 @@ from .models import Event, UserEventPlan, UserEvent, Squirl, GroupEvent, Member,
 from .models import Group, Location, Relation, FriendNotification
 from django.utils.safestring import mark_safe
 from django.shortcuts import render_to_response
-from .methods import get_calendar_events, get_suggested_group, get_display_month, get_friend_notifications, get_squirl, get_interests_formset, get_interest_by_name, validate_address_form, get_address_from_form, create_address
+from .methods import get_calendar_events, get_suggested_group, get_display_month, get_friend_notifications, get_squirl, get_interests_formset, get_interest_by_name, validate_address_form, get_address_from_form, create_address, create_address_form_from_address
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.models import User
@@ -15,8 +15,9 @@ from django.forms.formsets import formset_factory
 from .import groupMethods as gm
 from .groupForms import JoinGroupRequestForm, SubGroupNotificationForm
 from .import friendMethods as fm
-from .eventMethods import display_event, get_user_event_notifications, validate_event_notifications_formset, create_from_event_notification_formset, get_user_upcoming_events, get_event_notification_by_user_and_event
+from .eventMethods import display_event, get_user_event_notifications, validate_event_notifications_formset, create_from_event_notification_formset, get_user_upcoming_events, get_event_notification_by_user_and_event, can_user_edit_event, get_event
 #Get javascript going
+from django.utils.dateformat import DateFormat
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from django import forms
@@ -188,9 +189,10 @@ def event_page(request, event_id):
                 else:
                     return HttpResponse("In progress 1")
             else:
-                
+                squirl = get_squirl(request.user.id)
+                can_edit = can_user_edit_event(squirl, event)
                 attendance=UserEventPlan.objects.filter(event__pk =event_id)
-                return render(request, 'squirl/eventPage.html', {'event':event, 'attendance': attendance})
+                return render(request, 'squirl/eventPage.html', {'event':event, 'attendance': attendance, "can_edit" :can_edit})
         except Event.DoesNotExist:
             return HttpResponse("Error! You do not have access to "+ event_id);
 
@@ -202,9 +204,12 @@ def group_page(request, group_id):
         g_events = GroupEvent.objects.filter(group=group)
         squirl= get_squirl(request.user.id)
         form = gm.get_sub_group_request(group, squirl)
+        membership = False
+        if gm.get_member(squirl, group):
+            membership=True
 	if form:
         	form.fields['group1'].widget = forms.HiddenInput()
-        return render(request, 'squirl/groupPage.html', {'group': group, 'members': members, 'groupEvents':g_events, 'subGroupForm': form})
+        return render(request, 'squirl/groupPage.html', {'group': group, 'members': members, 'groupEvents':g_events, 'subGroupForm': form, 'membership' : membership})
     except Group.DoesNotExist:
         return HttpResponse("Group does not exist")
         
@@ -308,13 +313,14 @@ def add_event(request):
                         eventNotification.event =event
                         eventNotification.notice=notice
                         eventNotification.save()
-                notice = Notice()
-                notice.user = get_squirl(request.user.id)
-                notice.save()
-                eventNotification = EventNotification()
-                eventNotification.event = event
-                eventNotification.notice= notice
-                eventNotification.save()
+                if get_event_notification_by_user_and_event(get_squirl(request.user.id), event) is None:
+                    notice = Notice()
+                    notice.user = get_squirl(request.user.id)
+                    notice.save()
+                    eventNotification = EventNotification()
+                    eventNotification.event = event
+                    eventNotification.notice= notice
+                    eventNotification.save()
                 return redirect(index)
            
             
@@ -535,5 +541,97 @@ def get_upcomingEventsPaginationPage(page = 1):
         page = paginator.page(1)
     except EmptyPage:
         page = paginator.page(paginator.num_pages)
-
-  
+#TODO have to change the body so it doesn't save a new event and need to populate fields with current values.
+def edit_event(request, event_id):
+    if not request.user.is_authenticated():
+        return redirect(squirl_login)
+    event = get_event(event_id)
+    if event is None:
+        return HttpResponse("Event does not exist")
+    squirl = get_squirl(request.user.id)
+    if can_user_edit_event(squirl, event):
+        
+        
+        interests = formset_factory(InterestsForm, extra=len(event.interests.all()))
+        interests = interests(prefix="interests")
+        form = CreateEventForm()
+        addressForm = AddressForm()
+        if request.method =='POST':
+            form = CreateEventForm(request.POST)
+            addressForm= AddressForm(request.POST)
+            interests = formset_factory(InterestsForm, extra=0)
+            interests= interests(request.POST, request.FILES, prefix="interests")
+            
+            if form.is_valid() and addressForm.is_valid() and validate_address_form(addressForm.cleaned_data) and interests.is_valid():
+                valid_interest = False
+                for interform in interests:
+                    interform.is_valid()
+                    inter = interform.cleaned_data
+                    if len(inter['interest']) > 0:
+                        valid_interest=True
+                all_interests= []
+                for interform in interests:
+                    interest = get_interest_by_name(inter['interest'])
+                    #if the interest does not exist create it.
+                    if interest is None:
+                        interest = Interest()
+                        interest.name = inter['interest']
+                        interest.save()
+                        all_interests.append(interest)
+                    else:
+                        all_interests.append(interest)
+                data = form.cleaned_data
+                
+                addr = get_address_from_form(addressForm.cleaned_data)
+                
+                if addr is None:
+                
+                    addr=create_address(addressForm.cleaned_data)
+                    
+                #TODO continue here
+                event = get_event(event_id)
+                event.start_time = data['startTime']
+                event.end_time = data['endTime']
+                event.name=data['title']
+                event.description = data['description']
+                event.main_location=addr
+                for inter in all_interests:
+                    event.interests.add(inter)
+                event.save()
+                return redirect(index)
+           
+            
+        
+        squirl= Squirl.objects.get(squirl_user= request.user)
+        form.fields['friends'].queryset = Squirl.objects.filter(pk__in=set( Connection.objects.filter(relation__user =squirl).values_list('user', flat=True)))
+        #populate form initial from actual event
+        form.fields['title'].initial = event.name
+        
+        form.fields['startTime'].initial = event.start_time
+        form.fields['endTime'].initial = event.end_time
+        form.fields['description'].initial=event.description
+        form.fields['isUserEvent'].widget = forms.HiddenInput()
+        form.fields['group'].widget = forms.HiddenInput()
+        i_interests = []
+        for inter in event.interests.all():
+            i_interests.append(inter.name)
+        
+        i =0 
+        for inter in interests:
+            inter.fields['interest'].initial = i_interests[i]
+            i +=1
+        addressForm = create_address_form_from_address(event.main_location)
+        
+        f_groups = gm.get_groups_user_admin(squirl)
+        if f_groups is None:
+            form.fields['group'].queryset = Group.objects.none()
+        else:
+            form.fields['group'].queryset = Group.objects.filter(pk__in=[item.pk for item in f_groups])
+        return render(request, 'squirl/editEvent.html', {'form': form, 'interests': interests, 'addressForm': addressForm})
+        
+        
+        
+    else:
+        return HttpResponse("You do not have permission to edit this event")
+    
+    

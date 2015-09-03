@@ -36,12 +36,19 @@ class CreateEventForm(forms.Form):
         input_time_formats=['%H:%M'],
         input_date_formats =['%m/%d/%Y'],
         label = 'Start Time',
-        
+        widget=forms.SplitDateTimeWidget(
+        date_format='%m/%d/%Y',
+        time_format='%H:%M',
+        )
         )
     endTime = forms.SplitDateTimeField(
         input_time_formats=['%H:%M'],
         input_date_formats =['%m/%d/%Y'],
         label = 'End Time',
+        widget=forms.SplitDateTimeWidget(
+        date_format='%m/%d/%Y',
+        time_format='%H:%M',
+        )
         
         )
     description = forms.CharField(
@@ -55,8 +62,22 @@ class CreateEventForm(forms.Form):
         required = False,
         )
     friends = forms.ModelMultipleChoiceField(queryset=Squirl.objects.all() , widget=forms.CheckboxSelectMultiple, required=False)
+    
+    def is_valid(self):
+ 
+        # run the parent validation first
+        valid = super(CreateEventForm, self).is_valid()
+ 
+        # we're done now if not valid
+        if not valid:
+            return valid
+        if self.cleaned_data['startTime'] > self.cleaned_data['endTime'] :
+            self.errors['start_end_time']='The start time cannot be after the end time'
+            return False
+        return True
     class Media:
         js=('QED/addEventValidation.js')
+        
     #cannot have below line in initialization function.
             #self.fields['friends'].queryset = Squirl.objects.filter(pk__in=set( Connection.objects.filter(relation__user =s_user).values_list('user', flat=True)))
 
@@ -151,6 +172,7 @@ class AddressForm(forms.Form):
         max_value=99999,
         widget=forms.NumberInput(),
         )
+
 ##    class Meta:
 ##        model=Address
 ##        fields=['num','street','city','state','zipcode']

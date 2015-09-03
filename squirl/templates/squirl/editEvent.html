@@ -1,11 +1,11 @@
-{% extends "squirl/base.html" %}{%load static %} {% block title %}SQUIRL: Add Event{% endblock %}{% block content %}
+ {% extends "squirl/base.html" %}{%load static %} {% block title %}SQUIRL: Add Event{% endblock %}{% block content %}
 
 <div id="content">
-    <h1>Create A New Event!</h1>
+    <h1>Edit Your Event to Make it Even Better!</h1>
     <form method="post" id="eventForm">
         {% csrf_token %} {{form.errors}}
         <div>
-            <div>{{form.isUserEvent.label}}{{form.isUserEvent}}
+            <div>{{form.isUserEvent}}
                 <div id="eventTypeErrors"></div>
             </div>
             <div>{{form.title.label}}{{form.title}}
@@ -23,7 +23,7 @@
             <div>{{form.description.label}}{{form.description}}
                 <div id="descriptionErrors"></div>
             </div>
-            <div id="groupSelection">{{form.group.label}}{{form.group}}
+            <div id="groupSelection">{{form.group}}
                 <div id="groupErrors"></div>
             </div>
 
@@ -45,7 +45,7 @@
             
         </div>
 
-        <input type="submit" value="Create Event!" id="formSubmit">
+        <input type="submit" value="Save Event!" id="formSubmit">
     </form>
 </div>
 

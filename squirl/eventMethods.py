@@ -1,7 +1,8 @@
-from .models import Event, EventNotification, UserEventPlan, Notice, Event
+from .models import Event, EventNotification, UserEventPlan, Notice, Event, GroupEvent, UserEvent
 from django.utils.html import conditional_escape as esc
 from django.forms.formsets import formset_factory
 from .methods import get_notice
+from .groupMethods import has_edit_privileges_for_group
 from .forms import EventNotificationForm
 import datetime
 def get_event(event_id):
@@ -136,7 +137,24 @@ def get_event_notification_by_user_and_event(squirl, event):
 
 
 
-
+def can_user_edit_event(squirl, event):
+    u_event = None
+    try:
+        u_event = GroupEvent.objects.get(event=event)
+        return has_edit_privileges_for_group(squirl, u_event.group)
+    except GroupEvent.objects.DoesNotExist:
+        u_event = None
+    if u_event is None:
+        try:
+            u_event = UserEvent.objects.get(event=event)
+            if u_event.creator == squirl:
+                return True
+        except UserEvent.objects.DoesNotExist:
+            print("Event is not associated with anyone")
+            return False
+    
+    
+    return false
 
 
 

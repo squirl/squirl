@@ -13,6 +13,8 @@ class Address(models.Model):
     city = models.CharField(max_length=100)
     state = models.ForeignKey('State')
     zipcode = models.ForeignKey(Zipcode)
+    def __unicode__(self):
+        return str(self.id)
     #objects = models.GeoManager()
 #Might not have to do below lin 05/27/15
 #will implement model mixins shortly

@@ -11,6 +11,9 @@ function getEvent(eventId){
     $.ajaxSetup({cache: false});
     $.get('/squirl/', sendData, function(data){
         $('#eventTemp').html(data);
+        $("#notifications").height("50%");
+        $("#eventTemp").height("50%");
+        
     });
     
     

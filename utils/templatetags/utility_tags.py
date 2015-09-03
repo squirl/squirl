@@ -2,7 +2,7 @@ import urllib
 from django import template
 from django.utils.encoding import force_str
 from django.contrib.auth.models import User
-from squirl.models import SubGroupNotification
+from squirl.models import SubGroupNotification, Event, GroupEvent, UserEvent
 register = template.Library()
 
 @register.simple_tag(takes_context=True)
@@ -48,3 +48,38 @@ def print_sub_group_request_form(form_id):
     toReturn += " would like to be a {0}".format(text)
     toReturn += " of {0}".format(subNotice.toGroup)
     return toReturn
+
+@register.simple_tag
+def print_address(address):
+    to_print = ""
+    to_print +=str(address.num) + " " + address.street + " " + address.city + "," + address.state.abbr
+    return to_print
+
+@register.simple_tag
+def print_part_of(event):
+    u_event = None
+    try:
+        u_event = GroupEvent.objects.get(event=event)
+    except GroupEvent.objects.DoesNotExist:
+        u_event = None
+    if u_event is None:
+        try:
+            u_event = UserEvent.objects.get(event=event)
+        except UserEvent.objects.DoesNotExist:
+            print("Event is not associated with anyone")
+            return "Error"
+        return "User: {0} is the owner of the event".format(u_event.creator.squirl_user.username)   
+    else:
+        return "Part of Group: {0}".format(u_event.group.name)
+    
+@register.simple_tag
+def print_event_role(role):
+    role = int(role)
+    options= {0: 'Commit',
+        1: 'Not Sure',
+        2: 'Probably',
+        3: 'No',
+        4: 'Unlikely'
+             }
+    
+    return options[role]

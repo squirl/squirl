@@ -1,8 +1,8 @@
 {%extends "squirl/base.html"%} {% load staticfiles %}{%block links_to_static_files %}
-<link rel="stylesheet" type="text/css" href="{% static 'QED/groupPageLayout.css' %}" /><script type="text/javascript" src="{% static 'QED/jquery-2.1.4.js' %}">  </script>
+<link rel="stylesheet" type="text/css" href="{% static 'squirl/groupPageLayout.css' %}" /><script type="text/javascript" src="{% static 'squirl/jquery-2.1.4.js' %}">  </script>
 {% endblock %}
-{% block menu_addon %} <div><a href="/QED/joinGroup/{{group.pk | urlencode}}">Request to join group</a>
-        </div> {% endblock %}{%block content %}
+{% block menu_addon %}{% if not membership %}<div><a href="/squirl/joinGroup/{{group.pk | urlencode}}">Request to join group</a>
+        </div> {% endif %}{% endblock %}{%block content %}
 
 <div id="middle">
     <div id="events">
@@ -12,7 +12,7 @@
                 <tbody>
                     {% for event in groupEvents %}
                     <tr>
-                        <td><a class="eventLink" href='/QED/event/{{event.event.id}}'> {{event.event.name }}</a>
+                        <td><a class="eventLink" href='/squirl/event/{{event.event.id}}'> {{event.event.name }}</a>
                         </td>
                     </tr>
                     <tr>
@@ -76,5 +76,5 @@
 <div id="bottom">
     <div class="title">No news feed yet</div>
 </div>
-<script type="text/javascript" src="{% static 'QED/groupPageScript.js' %}"></script> </script> 
+<script type="text/javascript" src="{% static 'squirl/groupPageScript.js' %}"></script> </script> 
 {%endblock %}

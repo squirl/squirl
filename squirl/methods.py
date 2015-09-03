@@ -5,13 +5,18 @@ from datetime import datetime, timedelta
 from django.forms.formsets import formset_factory
 from .forms import FriendNotificationForm, InterestsForm
 from django.utils.html import conditional_escape as esc
+from .forms import AddressForm
 import random
 def get_notice(notice_id):
     try:
         return Notice.objects.get(id = notice_id)
     except Notice.DoesNotExist:
         return None
+def create_address_form_from_address(addr):
+    addressForm = AddressForm(initial= {'num': addr.num, 'street': addr.street, 'city': addr.city, 'state' :addr.state, 'zipcode' : int(addr.zipcode.code)})
 
+    return addressForm
+    
 """
 Gets a suggested group for the user
 """
@@ -46,7 +51,7 @@ def get_calendar_events(squirl, date = datetime.now().date):
             startdate +=  timedelta(days=1)
             if todaysEvents:
                 for event in todaysEvents:
-                    body= body +"<div><a onclick='getEvent({0})' href='/squirl/event/{0}'>{1}</a></div>".format(  event.event.id, esc(event.event.name))
+                    body= body +"<div><a onclick='getEvent({0})' >{1}</a></div>".format(  event.event.id, esc(event.event.name))
             body= body +'</td>'
         body= body+'</tr>'
     body+='</table>'

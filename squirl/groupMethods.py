@@ -82,6 +82,7 @@ def create_group_notification(squirl,group):
     except:
         return 1
 
+    
 
 def has_admin_rights_to_group(squirl, group):
     try:
@@ -89,7 +90,8 @@ def has_admin_rights_to_group(squirl, group):
         return True
     except Member.DoesNotExist:
         return False
-
+def has_edit_privileges_for_group(squirl, group):
+    return has_admin_rights_to_group(squirl, group)
 
 def get_groups_user_admin(squirl):
     memberships = Member.objects.filter(user=squirl, role = 0)
