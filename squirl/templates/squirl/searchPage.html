@@ -2,37 +2,41 @@
 <link rel="stylesheet" type="text/css" href="{% static 'squirl/searchPageLayout.css' %}" />{% endblock %} {%block content%}
 <div id="content">
 <div id="sidebar">
-    <div class="filters">
-        <h6> {%trans "Filter by Interest" %}</h6>
-        <div class="list-group">
-            <a class="list-group-item{% if not facest.selected.interest  %} active {%endif%}" href="{%append_to_query interest=""   %}">{%trans "All"%}</a>
-            {% for cat in facets.categories.interests %}<a class="list-group-item{% if facets.selected.interest == cat %} active {%endif %}" href="{% append_to_query interest=cat.pk  %}">{{cat}}</a> {%endfor%}
-        </div>
-        <h6> {%trans "Filter by Location" %}</h6>
-        <div class="list-group">
-            <a class="list-group-item{% if not facest.selected.location%} active {%endif%}" href="{%append_to_query location=""   %}">{%trans "All"%}</a>
-            {% for cat in facets.categories.locations %}<a class="list-group-item{% if facets.selected.location == cat %} active {%endif %}" href="{% append_to_query location=cat.pk  %}">{{cat}}</a> {%endfor%}
-        </div>
-
+   
+    <form method="post" id="searchForm">
+    
+        {% csrf_token %}
+        <div class="formErrors"> {{searchForm.errors}}</div>
+        {%for field in searchForm%}
+        <div>{{field.label}}: {{field}}</div>
+        {% endfor %}
         
-    </div>
+        <input type="submit" value="Search!" id="formSubmit">
+    </form>
 </div>
-<div id="eventList">
-    <h3>Events</h3>{% for event in object_list %}
+<div id="events">
+    <h3>Events</h3>
+    <div id="eventList">
+    {% for event in object_list %}
     <div class="event">
         <h3><a id="id_eventLink" href='/squirl/event/{{event.id}}'> {{event.name}}</a></h3>
     </div>
 
     {%endfor %}
+    </div>
 </div>
-<div id="groupList">
-    <h3>Groups</h3>{%for group in group_list %}
+    
+<div id="groups">
+    <h3>Groups</h3>
+    <div id="groupList">
+    {%for group in group_list %}
     <div class="group"> <h3><a href="/squirl/group/{{group.pk | urlencode}}">{{group.name}}</a></h3></div>
     
-    {%endfor %}
+        {%endfor %} </div>
 </div>
-<div id="userList"><h3>Users</h3> {%for user in user_list %}
+<div id="users"><h3>Users</h3> <div id="userList">{%for user in user_list %}
  <div class="person"><h4><a href="/squirl/profile/{{user.squirl_user.id}}">{{user.squirl_user.username}}</a></h4></div>
-    {%endfor %}
+    {%endfor %}</div>
 </div>
     </div>{%endblock%}
+{% block endScripts %} <script type="text/javascript" src="{% static 'squirl/searchPageScript.js' %}"></script> {%endblock %}

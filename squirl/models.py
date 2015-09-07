@@ -2,6 +2,17 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.gis.db import models
 
+class AncestorGroupEvent(models.Model):
+    notified_groups= models.ManyToManyField('Group')
+    event = models.ForeignKey('GroupEvent')
+    
+class ParentEventNotice(models.Model):
+    group = models.ForeignKey('Group', related_name= 'notified_group')
+    parent_event = models.ForeignKey('GroupEvent', null=True, blank = True)
+    ancestor_event = models.ForeignKey('AncestorGroupEvent')
+    viewed = models.BooleanField(default=0)
+    
+
 class Zipcode(models.Model):
     code = models.CharField(max_length=5)
 ##    poly = models.PolygonField()
@@ -20,6 +31,8 @@ class Address(models.Model):
 #will implement model mixins shortly
 
 
+def DEFAULT_STATE():
+    return list(State.objects.all()[:1])[0].id
 ##def SECOND_DEFAULT_USER():
 ##    user = User.objects.get(username='aklapper')
 ##    return Squirl.objects.get(squirl_user=user).id
@@ -40,7 +53,8 @@ class Address(models.Model):
 ##    return location[0].id
 
 class Location(models.Model):
-    name = models.CharField(max_length=200)
+    city = models.CharField(max_length=100, default='Unnamed')
+    state = models.ForeignKey('State', default = DEFAULT_STATE)
     def __str__(self):
         return self.name
 
@@ -66,6 +80,7 @@ class FriendNotification(models.Model):
 class EventNotification(models.Model):
     notice = models.ForeignKey('Notice')
     event = models.ForeignKey('Event')
+    ancestor_event = models.ForeignKey('AncestorGroupEvent', null=True, blank = True)
     def __unicode__(self):
         return self.event.name
 
@@ -89,7 +104,7 @@ class Event(models.Model):
         (3, 'acquaintance only'),
         )
     privacy=models.IntegerField(choices=PRIVACY_SETTINGS, default = 0)
-    interests = models.ManyToManyField('Interest', null = True, blank=True)
+    interests = models.ManyToManyField('Interest')
     def __str__(self):
         return self.name
     def __unicode__(self):
@@ -119,7 +134,7 @@ class Interest(models.Model):
 
 class Squirl(models.Model):
     squirl_user = models.OneToOneField(User)
-    interests = models.ManyToManyField('Interest', null = True, blank = True)
+    interests = models.ManyToManyField('Interest')
 ##    home = models.ForeignKey('Location', default = DEFAULT_LOCATION)
 
     home = models.ForeignKey('Location', null = True, blank = True)
@@ -193,12 +208,15 @@ class UserEvent(models.Model):
 class GroupEvent(models.Model):
     group = models.ForeignKey('Group')
     event = models.ForeignKey('Event')
-    
+    parent = models.ForeignKey('GroupEvent', null=True, blank=True)
+    greatest_ancestor = models.ForeignKey('AncestorGroupEvent', null=True, blank=True)
+    def __unicode__(self):
+        return str(self.id)
 class Group( models.Model):
     name = models.CharField(max_length = 100, primary_key = True)
     interests = models.ManyToManyField(Interest)
     description = models.CharField(max_length = 1000)
-    sub_group = models.ManyToManyField('Group',null=True, blank = True)
+    sub_group = models.ManyToManyField('Group')
 ##    location = models.ForeignKey('Location', default=DEFAULT_LOCATION)
 
     location = models.ForeignKey('Address', null = True, blank = True)

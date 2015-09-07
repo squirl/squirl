@@ -39,7 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'squirl',
     'utils',
-    'django.contrib.gis',
+#  'django.contrib.gis',
     
 )
 TEMPLATE_LOADERS = (

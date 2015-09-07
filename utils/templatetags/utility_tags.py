@@ -60,12 +60,12 @@ def print_part_of(event):
     u_event = None
     try:
         u_event = GroupEvent.objects.get(event=event)
-    except GroupEvent.objects.DoesNotExist:
+    except GroupEvent.DoesNotExist:
         u_event = None
     if u_event is None:
         try:
             u_event = UserEvent.objects.get(event=event)
-        except UserEvent.objects.DoesNotExist:
+        except UserEvent.DoesNotExist:
             print("Event is not associated with anyone")
             return "Error"
         return "User: {0} is the owner of the event".format(u_event.creator.squirl_user.username)   
@@ -83,3 +83,12 @@ def print_event_role(role):
              }
     
     return options[role]
+
+@register.simple_tag
+def print_membership(membership):
+    roles ={
+        0: 'Owner',
+        1: 'Member',
+        2: 'Editor',
+    }
+    return roles[membership]

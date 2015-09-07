@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from .models import Event, UserEventPlan, UserEvent, Squirl, GroupEvent, Member, Notice, EventNotification, Connection, Interest
-from .models import Group, Location, Relation, FriendNotification
+from .models import Event, UserEventPlan, UserEvent, Squirl, GroupEvent, Member, Notice, EventNotification, Connection, Interest, AncestorGroupEvent  
+from .models import Group, Location, Relation, FriendNotification, ParentEventNotice
 from django.utils.safestring import mark_safe
 from django.shortcuts import render_to_response
 from .methods import get_calendar_events, get_suggested_group, get_display_month, get_friend_notifications, get_squirl, get_interests_formset, get_interest_by_name, validate_address_form, get_address_from_form, create_address, create_address_form_from_address
@@ -10,10 +10,10 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from django.contrib.auth.models import User
 from datetime import datetime
 from django.shortcuts import redirect
-from .forms import CreateEventForm, CreateGroupForm, CreateUserForm, EventNotificationForm, EventFilterForm, SendFriendRequestForm, FriendNotificationForm, InterestsForm, AddressForm
+from .forms import CreateEventForm, CreateGroupForm, CreateUserForm, EventNotificationForm, EventFilterForm, SendFriendRequestForm, FriendNotificationForm, InterestsForm, AddressForm, SearchPageForm
 from django.forms.formsets import formset_factory
 from .import groupMethods as gm
-from .groupForms import JoinGroupRequestForm, SubGroupNotificationForm
+from .groupForms import JoinGroupRequestForm, SubGroupNotificationForm, ParentEventNoticeForm
 from .import friendMethods as fm
 from .eventMethods import display_event, get_user_event_notifications, validate_event_notifications_formset, create_from_event_notification_formset, get_user_upcoming_events, get_event_notification_by_user_and_event, can_user_edit_event, get_event
 #Get javascript going
@@ -83,7 +83,12 @@ def index(request):
         friend_formset = formset_factory(FriendNotificationForm)
         
         squirl = get_squirl(request.user.id)
+        parent_event_notifications_formset = gm.get_parent_event_notification_formset(squirl)
         if request.method =='POST':
+            parent_event_notices = gm.get_parent_event_notifications(squirl)
+            if parent_event_notices is not None:
+                parent_event_notifications_formset = formset_factory(ParentEventNoticeForm)
+                parent_event_notifications_formset = parent_event_notifications_formset(request.POST, request.FILES, prefix = "parentEventNotices")
             sub_notif_post_formset = formset_factory(SubGroupNotificationForm)
             sub_notif_post_formset = sub_notif_post_formset(request.POST, request.FILES, prefix = 'subGroupNotifications')
             event_notification_formset = formset_factory(EventNotificationForm)
@@ -120,11 +125,20 @@ def index(request):
             else:
                 print ("sub form not valid")
                 valid = False
+                
+            if parent_event_notices is not None:
+                if parent_event_notifications_formset.is_valid():
+                    print("parent event formset")
+                    valid = gm.validate_parent_event_formset(parent_event_notifications_formset, squirl)
+                else:
+                    print("parent event not valid")
+                    valid = False
             if valid:
                 gm.create_members_join_group_formset(join_group_formset)
                 fm.handle_friend_formset(friend_notifications, squirl)
                 create_from_event_notification_formset(event_notification_formset, squirl)
                 gm.handle_sub_group_notification_post(sub_notif_post_formset, squirl)
+                gm.handle_parent_event_formset(parent_event_notifications_formset)
             else:
                 print("not valid valid")
 
@@ -162,7 +176,8 @@ def index(request):
 
                    'friend_formset': friend_notifications,
                    'join_group_formset': join_group_formset,
-                   'sub_group_formset': gm.get_sub_group_notifications_formset(get_squirl(request.user.id))
+                   'sub_group_formset': gm.get_sub_group_notifications_formset(get_squirl(request.user.id)),
+                   'parent_event_formset': parent_event_notifications_formset,
                    }
         return render(request, 'squirl/index.html', context)
     
@@ -300,7 +315,20 @@ def add_event(request):
                                 eventNotification.event =event
                                 eventNotification.notice= notice
                                 eventNotification.save()
-                        
+                        sub_groups = groupEvent.group.sub_group.all()
+                        if sub_groups is not None:
+                            #create that ancestor group event and then send out notifications
+                            ancestor_event = AncestorGroupEvent()
+                            ancestor_event.event = groupEvent
+                            ancestor_event.save()
+                            for g in sub_groups:
+                                notice = ParentEventNotice()
+                                notice.group = g
+                                notice.parent_group = groupEvent
+                                notice.ancestor_event = ancestor_event
+                                notice.save()
+                                ancestor_event.notified_groups.add(g)
+                            ancestor_event.save()
                     else:
                         return HttpResponse("Try again")
                 friends = data.get('friends')
@@ -407,6 +435,8 @@ def search_page(request):
         return redirect(squirl_login)
     
     else:
+        
+        searchForm = SearchPageForm()
         qs = Event.objects.order_by('name')
         group_qs = Group.objects.order_by('name')
         user_qs = Squirl.objects.order_by('squirl_user__username')
@@ -445,6 +475,7 @@ def search_page(request):
                  'object_list': qs,
                  'group_list': group_qs,
                  'user_list': user_qs,
+                 'searchForm': searchForm,
                  }
         return render(request, 'squirl/searchPage.html', context)
 

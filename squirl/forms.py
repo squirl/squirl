@@ -176,3 +176,24 @@ class AddressForm(forms.Form):
 ##    class Meta:
 ##        model=Address
 ##        fields=['num','street','city','state','zipcode']
+
+class SearchPageForm(forms.Form):
+    interest = forms.CharField(max_length=150, required=False)
+    state = forms.ModelChoiceField(
+        queryset=State.objects.all(),
+        required=False
+        )
+    city = forms.CharField(max_length= 100, required=False)
+    def is_valid(self):
+ 
+        # run the parent validation first
+        valid = super(SearchPageForm, self).is_valid()
+ 
+        if not valid:
+            return valid
+        data = self.cleaned_data
+        if (len(data['city']) ==0 or data['state'] is None) and len(data['interest']) == 0:
+            self.errors['loc_or_interest'] = "Need to select state and city and or select just an interest"
+            return False
+        return True
+    

@@ -142,7 +142,7 @@ def can_user_edit_event(squirl, event):
     try:
         u_event = GroupEvent.objects.get(event=event)
         return has_edit_privileges_for_group(squirl, u_event.group)
-    except GroupEvent.objects.DoesNotExist:
+    except GroupEvent.DoesNotExist:
         u_event = None
     if u_event is None:
         try:

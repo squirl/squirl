@@ -1,8 +1,8 @@
 from .models import Group, Squirl, Member, JoinGroupNotification, GroupNotice
 from django.forms.formsets import formset_factory
-from .groupForms import JoinGroupRequestForm, CreateSubGroupRequestForm, SubGroupNotificationForm
+from .groupForms import JoinGroupRequestForm, CreateSubGroupRequestForm, SubGroupNotificationForm, ParentEventNoticeForm
 from .methods import get_squirl
-from .models import SubGroupNotification
+from .models import SubGroupNotification, ParentEventNotice, AncestorGroupEvent, Notice, GroupEvent, Event, EventNotification
 """
 Determines if the user has access to the group
 """
@@ -323,8 +323,106 @@ def get_sub_group_notification_by_id(notice_id):
         return notice
     except SubGroupNotification.DoesNotExist:
         return None
+def get_parent_event_notifications(squirl):
+    adminGroups = get_groups_user_admin(squirl)
+    to_return = []
+    for tGroup in adminGroups:
+        notices = ParentEventNotice.objects.filter(group = tGroup, viewed=False)
+        for tNotice in notices:
+            to_return.append(tNotice)
+    if len(to_return) == 0:
+        return None
+    return to_return
+    
+def get_parent_event_notification_formset(squirl):
+    adminGroups = get_groups_user_admin(squirl)
+    #create initial formset
+    formset = formset_factory(ParentEventNoticeForm, extra =0)
+    
+    if adminGroups is not None:
+        initial_list =[]
+        for tGroup in adminGroups:
+            notices = ParentEventNotice.objects.filter(group = tGroup, viewed=False)
+            for tNotice in notices:
+                #{'toGroup': tNotice.toGroup, 'fromGroup': tNotice.fromGroup, 'role': tNotice.role, }
+                initial_list.append({'notice': tNotice})
+    
+        return formset(initial=initial_list, prefix='parentEventNotices')
+    else:
+        return None
 
+def validate_parent_event_formset(formset, squirl):
+    valid = True
+    notices = get_parent_event_notifications(squirl)
+    
+    for form in formset:
+        if form.is_valid():
+            if form.cleaned_data['notice'] not in notices:
+                return False
+        else:
+            return False
+    return valid
 
+def handle_parent_event_formset(formset):
+    print("lskdjflksdjf")
+    for form in formset:
+        data = form.cleaned_data
+        action = int(data['choice'])
+        if action != 0:
+            notice = data['notice']
+            notice.viewed = True
+            notice.save()
+            
+            if action == 1:
+                t_event = notice.ancestor_event.event
+                event = Event()
+                event.main_location= t_event.event.main_location
+                event.start_time = t_event.event.start_time
+                event.end_time = t_event.event.end_time
+                event.name = t_event.event.name
+                event.description = t_event.event.description
+                event.privacy = t_event.event.privacy
+                event.save()
+                for interest in t_event.event.interests.all():
+                    event.interests.add(interest)
+                event.save()
+                groupEvent = GroupEvent()
+                groupEvent.group = notice.group
+                groupEvent.event = event
+                groupEvent.parent = notice.parent_event
+                groupEvent.greatest_ancestor = notice.ancestor_event
+                groupEvent.save()
+                
+                mems = Member.objects.filter(group = groupEvent.group)
+                for m in mems:
+                    if not EventNotification.objects.filter(notice__user = m.user, ancestor_event = notice.ancestor_event) and not EventNotification.objects.filter(notice__user = m.user, event = notice.ancestor_event.event.event):
+                        #Notify them
+                        note = Notice()
+                        note.user = m.user
+                        note.save()
+                        n = EventNotification()
+                        n.notice = note
+                        n.event = event
+                        n.ancestor_event = notice.ancestor_event
+                        n.save()
+                sub_groups = notice.group.sub_group.all()
+                for g in sub_groups:
+                    if g not in notice.ancestor_event.notified_groups.all():
+                        notice.ancestor_event.notified_groups.add(g)
+                        #create new notice
+                        
+                        pn = ParentEventNotice()
+                        pn.group = g
+                        pn.parent_group = notice.notice.group
+                        pn.ancestor_event = notice.ancestor_event
+                        pn.save()
+                        
+                        
+                        
+                notice.ancestor_event.save()
+                return "success"
+                #notify all members that haven't been
+                
 def get_sub_group_notifications_formset(squirl):
     adminGroups = get_groups_user_admin(squirl)
     formset = formset_factory(SubGroupNotificationForm, extra =0)

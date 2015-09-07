@@ -16,4 +16,5 @@ urlpatterns = [
     url(r'^joinGroup/(?P<group_id>[\w ]+)/$', views.join_group_request, name='join_group_request'),
     url(r'^subGroupRequest/$', ajaxViews.handle_sub_group_request, name='handle_sub_group_request'),
     url(r'^editEvent/(?P<event_id>[0-9]+)/$',views.edit_event, name='edit_event'),
+    url(r'^searchSubmit/$', ajaxViews.search_page, name='search_page'),
 ]

@@ -11,7 +11,7 @@ $("#subGroupForm").on('submit', function(event) {
         cache: false
     });
     var sendData = $("#subGroupForm").serialize();
-    $.post('/QED/subGroupRequest/', sendData, function(data) {
+    $.post('/squirl/subGroupRequest/', sendData, function(data) {
         if ($(".formMessage").size() === 0) {
             var message = document.createElement("div");
             message.setAttribute("class", "formMessage");

@@ -1,6 +1,6 @@
 from django import forms
 from django.db import models
-from .models import Group, Squirl, SubGroupNotification
+from .models import Group, Squirl, SubGroupNotification, ParentEventNotice
 
 class JoinGroupRequestForm(forms.Form):
     user = forms.CharField(widget= forms.HiddenInput())
@@ -39,3 +39,13 @@ class SubGroupNotificationForm(forms.Form):
         (2, "Decline"),
         )
     action = forms.ChoiceField(choices=ACTIONS, initial =0)
+
+    
+class ParentEventNoticeForm(forms.Form):
+    ACTIONS = (
+        (0, "View Later"),
+        (1, "Accept"),
+        (2, "Decline"),
+        )
+    choice = forms.ChoiceField(choices=ACTIONS, initial =0)
+    notice = forms.ModelChoiceField(queryset= ParentEventNotice.objects.all(), widget= forms.HiddenInput())
